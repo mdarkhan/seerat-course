@@ -433,6 +433,22 @@
                         "আরবে মূর্তিপূজার সূচনা ও জাহেলিয়াতের প্রেক্ষাপট"
                     ],
                     syllabus: `পরীক্ষা দারস ও "সীরাতে খাতামুল আম্বিয়া" বইয়ের ২১ থেকে ২৬ নম্বর পৃষ্ঠা পর্যন্ত এর উপর হবে।`,
+                    resources: [],
+                    hasFamilyTree: true
+                },
+                quiz: []
+            },
+            {
+                id: 5,
+                date: "2026-01-16",
+                duration: "2 hr 12 min",
+                category: "seerat",
+                driveLink: "https://drive.google.com/file/d/1kZ_1tZbT5hPbaCVFbEmeX2TbGRcE_zy-/view?usp=sharing",
+                content: {
+                    title: "সীরাত-০৩",
+                    description: "এই ক্লাসের বিস্তারিত তথ্য ও কুইজ শীঘ্রই আপডেট করা হবে।",
+                    summary: "এই ক্লাসের বিস্তারিত তথ্য ও কুইজ শীঘ্রই আপডেট করা হবে।",
+                    syllabus: `পরীক্ষা দারস ও "সীরাতে খাতামুল আম্বিয়া" বইয়ের ২৬ থেকে ৪২ নম্বর পৃষ্ঠা পর্যন্ত এর উপর হবে।`,
                     resources: []
                 },
                 quiz: []
@@ -440,7 +456,6 @@
         ];
 
         // DYNAMIC NOTICE LOGIC
-        // Get the syllabus from the very last lecture in the list that has a syllabus
         const latestLectureWithSyllabus = [...COURSE_DATA].reverse().find(l => l.content.syllabus);
         const GLOBAL_NOTICE = latestLectureWithSyllabus 
             ? latestLectureWithSyllabus.content.syllabus 
