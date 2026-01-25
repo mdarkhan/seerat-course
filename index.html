@@ -368,6 +368,11 @@
         }
 
         // --- 5. UTILITIES ---
+        const toBanglaDigit = (num) => {
+            if (num === undefined || num === null) return '';
+            return num.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
+        };
+
         const getDriveEmbedLink = (url) => {
             if (typeof url !== 'string') return url;
             const parts = url.split("/d/");
@@ -995,7 +1000,7 @@
                                 </thead>
                                 <tbody>
                                     ${state.leaderboardData.length > 0 ? state.leaderboardData.map((user, idx) => {
-                                        let rankDisplay = `<span class="font-bold opacity-50">#${idx + 1}</span>`;
+                                        let rankDisplay = `<span class="font-bold opacity-50">#${toBanglaDigit(idx + 1)}</span>`;
                                         if (idx === 0) rankDisplay = `<i data-lucide="crown" class="w-6 h-6 text-yellow-400 mx-auto fill-current"></i>`;
                                         if (idx === 1) rankDisplay = `<i data-lucide="medal" class="w-6 h-6 text-gray-300 mx-auto fill-current"></i>`;
                                         if (idx === 2) rankDisplay = `<i data-lucide="medal" class="w-6 h-6 text-amber-600 mx-auto fill-current"></i>`;
@@ -1007,15 +1012,15 @@
                                                 <div class="font-bold text-base md:text-lg">${user.name}</div>
                                                 <div class="text-xs opacity-60">অভিভাবক: ${user.guardian || '-'}</div>
                                             </td>
-                                            <!-- Swapped Body Columns -->
+                                            <!-- Swapped Body Columns with Bigger Fonts & Bangla Digits -->
                                             <td class="p-4 text-center align-middle">
-                                                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-bold text-sm">
-                                                    ${user.score}
+                                                <span class="inline-block px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-extrabold text-2xl shadow-sm">
+                                                    ${toBanglaDigit(user.score)}
                                                 </span>
                                             </td>
                                             <td class="p-4 text-center align-middle">
-                                                <span class="inline-block px-3 py-1 rounded bg-gray-100 dark:bg-slate-700 text-xs font-bold">
-                                                    ${user.submissionSerial || '-'}
+                                                <span class="inline-block px-4 py-2 rounded bg-gray-100 dark:bg-slate-700 text-xl font-bold opacity-70">
+                                                    ${toBanglaDigit(user.submissionSerial || '-')}
                                                 </span>
                                             </td>
                                             <td class="p-4 text-right align-middle text-sm opacity-60 hidden sm:table-cell">
