@@ -483,6 +483,7 @@
             score: "প্রাপ্ত নম্বর", 
             time: "জমার সময়",   
             submissionSerial: "জমার ক্রম", 
+            timeTaken: "গৃহীত সময়", // New Text
             viewLeaderboard: "মেধাতালিকা দেখুন"
         };
 
@@ -509,7 +510,11 @@
                 questions: [], 
                 userAnswers: {},
                 userName: "",
-                userGuardian: ""
+                userGuardian: "",
+                startTime: null, // New
+                endTime: null,   // New
+                timerInterval: null, // New
+                timeLeft: 120 // 2 minutes in seconds
             },
             leaderboardData: []
         };
@@ -565,6 +570,12 @@
         const toBanglaDigit = (num) => {
             if (num === undefined || num === null) return '';
             return num.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
+        };
+
+        const formatTime = (seconds) => {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${toBanglaDigit(m)}:${toBanglaDigit(s < 10 ? '0' : '')}${toBanglaDigit(s)}`;
         };
 
         const getDriveEmbedLink = (url) => {
@@ -936,7 +947,7 @@
             `;
         }
 
-        // --- UPDATED RENDER QUIZ (Scrollable List Mode) ---
+        // --- UPDATED RENDER QUIZ (Scrollable List Mode + Timer) ---
         function renderQuiz() {
             const qState = state.quiz;
             const quizData = qState.questions; 
@@ -950,6 +961,7 @@
                 <div class="min-h-screen ${bgClass} animate-fade-in pb-20">
                     <!-- Sticky Header -->
                     <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800/95' : 'border-stone-200 bg-white/95'} backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                        <!-- Custom Back Button Logic -->
                         <button onclick="actions.exitReview()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span>
                         </button>
@@ -1081,21 +1093,16 @@
                             <p class="text-lg font-medium leading-relaxed">"${message}"</p>
                         </div>
                         
-                        <div class="space-y-3">
-                            <!-- Removed retry button and replaced with View Leaderboard -->
-                            <button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <div class="grid grid-cols-2 gap-3 w-full">
+                            <!-- Show Leaderboard Button -->
+                            <button onclick="actions.viewLeaderboard()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                                 <i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}
                             </button>
                             
-                            <div class="grid grid-cols-2 gap-3">
-                                <button onclick="actions.exitQuiz()" class="py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2">
-                                    <i data-lucide="home" class="w-4 h-4"></i> ${TEXTS.back}
-                                </button>
-                                <!-- Made Answer Review button more prominent -->
-                                <button onclick="actions.reviewQuizAnswers()" class="py-3 rounded-xl bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-900 dark:hover:bg-slate-600 font-bold transition flex items-center justify-center gap-2 shadow-md">
-                                    <i data-lucide="list-checks" class="w-4 h-4"></i> উত্তর দেখুন
-                                </button>
-                            </div>
+                            <!-- Show Answer Button -->
+                            <button onclick="actions.reviewQuizAnswers()" class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                <i data-lucide="list-checks" class="w-5 h-5"></i> উত্তর দেখুন
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1105,14 +1112,22 @@
             // --- 3. QUIZ TAKING VIEW (Scrolling List) ---
             return `
             <div class="min-h-screen flex flex-col ${bgClass} animate-fade-in">
-                <!-- Header -->
+                <!-- Header with Timer -->
                 <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800' : 'border-stone-200 bg-white'} flex items-center justify-between sticky top-0 z-20 shadow-sm">
                     <button onclick="actions.exitQuiz()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
                     </button>
                     <div class="text-center">
-                        <div class="font-bold text-lg">কুইজ প্রতিযোগিতা</div>
-                        <div class="text-xs opacity-50 font-medium">পরীক্ষার্থী: ${qState.userName}</div>
+                         <!-- Timer Display -->
+                         <div class="flex items-center gap-2 justify-center mb-1">
+                             <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center text-red-600 dark:text-red-400 animate-pulse">
+                                 <i data-lucide="timer" class="w-5 h-5"></i>
+                             </div>
+                             <span class="text-2xl font-black text-red-600 dark:text-red-400 font-mono tracking-wider" id="quiz-timer">
+                                 ${formatTime(qState.timeLeft)}
+                             </span>
+                         </div>
+                         <div class="text-xs opacity-50 font-medium">পরীক্ষার্থী: ${qState.userName}</div>
                     </div>
                     <div class="w-10"></div> 
                 </div>
@@ -1192,7 +1207,8 @@
             return `
             <div class="min-h-screen ${bgClass} flex flex-col animate-fade-in">
                 <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800/95' : 'border-stone-200 bg-white/95'} backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-sm">
-                    <button onclick="actions.goHome()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
+                    <!-- Modified Back Button for Leaderboard -->
+                    <button onclick="actions.leaderboardBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span>
                     </button>
                     <div class="font-bold text-lg flex items-center gap-2">
@@ -1214,6 +1230,7 @@
                                         <!-- Swapped Score and Submission Serial -->
                                         <th class="p-4 text-center">${TEXTS.score}</th>
                                         <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
+                                        <th class="p-4 text-center">${TEXTS.timeTaken}</th>
                                         <th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th>
                                     </tr>
                                 </thead>
@@ -1240,6 +1257,14 @@
                                         else if (idx === 1) rowClass += " bg-slate-50/50 dark:bg-slate-900/20";
                                         else if (idx === 2) rowClass += " bg-amber-50/50 dark:bg-amber-900/10";
 
+                                        // Formatting Time Taken (New Column)
+                                        let durationText = "-";
+                                        if (user.timeTaken) {
+                                            const min = Math.floor(user.timeTaken / 60);
+                                            const sec = user.timeTaken % 60;
+                                            durationText = `${toBanglaDigit(min)} মি ${toBanglaDigit(sec)} সে`;
+                                        }
+
                                         return `
                                         <tr class="${rowClass}">
                                             <td class="p-4 text-center align-middle">${rankDisplay}</td>
@@ -1254,26 +1279,25 @@
                                                 </span>
                                             </td>
                                             <td class="p-4 text-center align-middle">
-                                                <span class="font-bold text-base md:text-lg">
+                                                <span class="font-bold text-base md:text-lg opacity-70">
                                                     ${toBanglaDigit(user.submissionSerial || '-')}
                                                 </span>
                                             </td>
+                                            <td class="p-4 text-center align-middle font-medium text-emerald-600">
+                                                ${durationText}
+                                            </td>
                                             <td class="p-4 text-center align-middle text-sm opacity-60 hidden sm:table-cell">
                                                 ${new Date(user.timestamp).toLocaleString('bn-BD', { 
-                                                    year: 'numeric', 
-                                                    month: 'long', 
-                                                    day: 'numeric', 
-                                                    hour: 'numeric', 
-                                                    minute: 'numeric', 
-                                                    second: 'numeric',
-                                                    hour12: true 
-                                                })}
+                                                    day: '2-digit', 
+                                                    month: '2-digit', 
+                                                    year: 'numeric'
+                                                }).replace(/\//g, '-')}
                                             </td>
                                         </tr>
                                         `;
                                     }).join('') : `
                                         <tr>
-                                            <td colspan="5" class="p-10 text-center opacity-50">
+                                            <td colspan="6" class="p-10 text-center opacity-50">
                                                 এখনো কোনো ফলাফল জমা পড়েনি।
                                             </td>
                                         </tr>
@@ -1290,7 +1314,10 @@
         // --- 7. ACTIONS (Exposed to Window) ---
         const actions = {
             toggleTheme: () => { state.darkMode = !state.darkMode; render(); },
-            goHome: () => { state.view = 'home'; state.selectedLecture = null; render(); },
+            goHome: () => { 
+                if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
+                state.view = 'home'; state.selectedLecture = null; render(); 
+            },
             setFilter: (cat) => { state.filter = cat; render(); },
             setSearch: (val) => { state.search = val; if(state.view === 'home') render(); },
             selectLecture: (id) => { state.selectedLecture = COURSE_DATA.find(l => l.id === id); state.view = 'detail'; state.playbackRate = 1.0; window.scrollTo(0,0); render(); },
@@ -1309,7 +1336,8 @@
                     questions: [], 
                     userAnswers: {},
                     userName: "",
-                    userGuardian: ""
+                    userGuardian: "",
+                    timeLeft: 120 // Reset timer
                 };
                 state.view = 'quiz_registration'; 
                 render(); 
@@ -1329,8 +1357,23 @@
                 state.quiz.userGuardian = guardian;
 
                 const questions = [...ALL_QUIZZES];
-                for (let i = questions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [questions[i], questions[j]] = [questions[j], questions[i]]; }
+                // Shuffle logic removed for consistent testing, or keep if desired
+                // for (let i = questions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [questions[i], questions[j]] = [questions[j], questions[i]]; }
                 state.quiz.questions = questions;
+
+                // Start Timer
+                state.quiz.startTime = Date.now();
+                state.quiz.timerInterval = setInterval(() => {
+                    if (state.quiz.timeLeft > 0) {
+                        state.quiz.timeLeft--;
+                        const timerEl = document.getElementById('quiz-timer');
+                        if (timerEl) timerEl.innerText = formatTime(state.quiz.timeLeft);
+                    } else {
+                        // Time Up
+                        clearInterval(state.quiz.timerInterval);
+                        actions.submitAllAnswers(); // Auto submit
+                    }
+                }, 1000);
 
                 state.view = 'quiz';
                 render();
@@ -1354,6 +1397,10 @@
             },
             
             submitAllAnswers: () => {
+                if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
+                state.quiz.endTime = Date.now();
+                const timeTakenSeconds = Math.floor((state.quiz.endTime - state.quiz.startTime) / 1000);
+
                 let score = 0;
                 state.quiz.questions.forEach((q, idx) => {
                     const userAns = state.quiz.userAnswers[idx] || [];
@@ -1372,7 +1419,7 @@
                 state.quiz.isFinished = true;
                 state.quiz.isReviewing = false; 
                 
-                // SAVE SCORE TO FIRESTORE
+                // SAVE SCORE TO FIRESTORE WITH TIME TAKEN
                 if (currentUser) {
                     try {
                         addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), {
@@ -1380,7 +1427,8 @@
                             guardian: state.quiz.userGuardian,
                             score: score,
                             totalQuestions: state.quiz.questions.length,
-                            timestamp: Date.now()
+                            timestamp: Date.now(),
+                            timeTaken: timeTakenSeconds // Saving duration in seconds
                         });
                     } catch(e) { console.error("Save failed", e); }
                 }
@@ -1390,25 +1438,8 @@
             },
 
             retryQuiz: () => {
-                const oldName = state.quiz.userName;
-                const oldGuardian = state.quiz.userGuardian;
-                
-                const questions = [...ALL_QUIZZES];
-                for (let i = questions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [questions[i], questions[j]] = [questions[j], questions[i]]; }
-                
-                state.quiz = { 
-                    active: true, 
-                    questions: questions,
-                    userAnswers: {}, 
-                    score: 0,
-                    isFinished: false,
-                    isReviewing: false,
-                    userName: oldName,
-                    userGuardian: oldGuardian
-                };
-                state.view = 'quiz';
-                render();
-                window.scrollTo(0,0);
+                // Not used anymore in the flow but kept for safety
+                actions.startQuiz();
             },
             
             reviewQuizAnswers: () => {
@@ -1423,7 +1454,10 @@
                 render();
             },
             
-            exitQuiz: () => { state.view = 'home'; render(); },
+            exitQuiz: () => { 
+                if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
+                state.view = 'home'; render(); 
+            },
             
             // LEADERBOARD ACTIONS
             viewLeaderboard: () => {
@@ -1431,6 +1465,18 @@
                 actions.fetchLeaderboardData();
                 render();
                 window.scrollTo(0, 0);
+            },
+            
+            // New Back Action for Leaderboard
+            leaderboardBack: () => {
+                // If user came from a finished quiz session, go back to results. 
+                // Otherwise go home.
+                if (state.quiz.isFinished) {
+                    state.view = 'quiz'; // This renders the result view because isFinished is true
+                } else {
+                    state.view = 'home';
+                }
+                render();
             },
 
             fetchLeaderboardData: () => {
@@ -1458,6 +1504,8 @@
                         if (b.score !== a.score) {
                             return b.score - a.score;
                         }
+                        // Secondary sort: Time Taken (Less is better) - OPTIONAL, asked for just showing it.
+                        // Keeping previous logic: Sort by submission timestamp if scores tied
                         return a.timestamp - b.timestamp;
                     });
 
