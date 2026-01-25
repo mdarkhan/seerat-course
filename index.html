@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>মাসউদ আলিমী - সীরাত কোর্স</title>
     
-    <!-- Google Fonts: Noto Sans Bengali & Hind Siliguri -->
+    <!-- Google Fonts: Hind Siliguri -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,19 +21,9 @@
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                container: {
-                    center: true,
-                    padding: {
-                        DEFAULT: '1rem',
-                        sm: '1.5rem',
-                        lg: '2rem',
-                        xl: '2.5rem',
-                        '2xl': '3rem',
-                    },
-                },
                 extend: {
                     fontFamily: {
-                        sans: ['"Noto Sans Bengali"', '"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+                        sans: ['"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
                         serif: ['ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
                     },
                     colors: {
@@ -53,7 +43,7 @@
     </script>
 
     <style>
-        body { font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif; }
+        body { font-family: 'Hind Siliguri', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -212,7 +202,7 @@
                     ],
                     syllabus: `পরীক্ষা দারস ও "সীরাতে খাতামুল আম্বিয়া" বইয়ের ২১ থেকে ২৬ নম্বর পৃষ্ঠা পর্যন্ত এর উপর হবে।`,
                     resources: [{ label: 'বইঃ "সীরাতে খাতামুল আম্বিয়া"<br />(লেখকঃ মুফতী মুহাম্মদ শফী)', url: "#" }],
-                    hasFamilyTree: true
+                    // hasFamilyTree: true REMOVED
                 },
                 quiz: []
             },
@@ -1002,11 +992,11 @@
                                     <tr class="${state.darkMode ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-600 text-white'} uppercase text-base font-bold tracking-wider">
                                         <!-- Changed # to মেধাস্থান -->
                                         <th class="p-4 w-20 text-center">মেধাস্থান</th>
-                                        <th class="p-4 text-center">${TEXTS.name}</th>
+                                        <th class="p-4">${TEXTS.name}</th>
                                         <!-- Swapped Score and Submission Serial -->
                                         <th class="p-4 text-center">${TEXTS.score}</th>
                                         <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
-                                        <th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th>
+                                        <th class="p-4 text-right hidden sm:table-cell">${TEXTS.time}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1041,16 +1031,16 @@
                                             </td>
                                             <!-- Swapped Body Columns -->
                                             <td class="p-4 text-center align-middle">
-                                                <span class="font-bold text-base md:text-lg">
+                                                <span class="inline-block px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-extrabold text-2xl shadow-sm">
                                                     ${toBanglaDigit(user.score)}
                                                 </span>
                                             </td>
                                             <td class="p-4 text-center align-middle">
-                                                <span class="font-bold text-base md:text-lg">
+                                                <span class="font-bold text-base md:text-lg opacity-70">
                                                     ${toBanglaDigit(user.submissionSerial || '-')}
                                                 </span>
                                             </td>
-                                            <td class="p-4 text-center align-middle text-sm opacity-60 hidden sm:table-cell">
+                                            <td class="p-4 text-right align-middle text-sm opacity-60 hidden sm:table-cell">
                                                 ${new Date(user.timestamp).toLocaleString('bn-BD', { 
                                                     year: 'numeric', 
                                                     month: 'long', 
