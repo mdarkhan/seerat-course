@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>মাসউদ আলিমী - সীরাত কোর্স</title>
     
-    <!-- Google Fonts: Hind Siliguri -->
+    <!-- Google Fonts: Noto Sans Bengali & Hind Siliguri -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,9 +21,19 @@
         tailwind.config = {
             darkMode: 'class',
             theme: {
+                container: {
+                    center: true,
+                    padding: {
+                        DEFAULT: '1rem',
+                        sm: '1.5rem',
+                        lg: '2rem',
+                        xl: '2.5rem',
+                        '2xl': '3rem',
+                    },
+                },
                 extend: {
                     fontFamily: {
-                        sans: ['"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+                        sans: ['"Noto Sans Bengali"', '"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
                         serif: ['ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
                     },
                     colors: {
@@ -43,7 +53,7 @@
     </script>
 
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; }
+        body { font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -163,7 +173,7 @@
             {question: "ইসলামের দাওয়াত শুনে উতবা ইবনু রবিয়া তার সম্প্রদায়ের কাছে ফিরে কী বলেছিল?", options: ["মুহাম্মাদকে এখনই হত্যা করো", "আমি এমন বাণী শুনেছি যা জাদুকর বা কবির নয়", "মুহাম্মাদ পাগল হয়ে গেছে", "আমি কিছুই বুঝিনি"], correctIndex: 1, note: "আল্লাহর কসম! আজ আমি এমন একটি বাণী শুনেছি, যা এই জীবনে কখনো শুনিনি... কবিতা নয়, জাদুমন্ত্রও নয়। (উৎস: পৃষ্ঠা ৪৭)"},
             {question: "বনি হাশিম ও বনি আবদুল মুত্তালিব কেন নবিজি (সা.)-কে রক্ষা করেছিল?", options: ["তারা সবাই মুসলিম ছিল", "গোত্রীয় টান ও আবু তালিবের সম্মানে", "তারা টাকার বিনিময়ে রক্ষা করত", "তারা কুরাইশদের ভয় পেত না"], correctIndex: 1, note: "কুরাইশ দেখল যে, বনি হাশিম ও বনি আবদুল মুত্তালিব গোত্র নবি (সা.)-এর পক্ষে আছে। (এটি মূলত গোত্রীয় প্রথা ছিল, সবাই মুসলিম ছিল না)। (উৎস: পৃষ্ঠা ৪৫)"},
             {question: "আবু তালিব শেষ পর্যন্ত কী করেছিলেন?", options: ["ইসলাম গ্রহণ করেছিলেন", "নবিজিকে সমর্থন দিয়ে গিয়েছিলেন", "নবিজিকে ত্যাগ করেছিলেন", "মক্কা ছেড়েছিলেন"], correctIndex: 1, note: "আমি কখনো তোমার সমর্থন ও সাহায্য থেকে পিছিয়ে আসব না। (উৎস: পৃষ্ঠা ৪৫)"},
-            {question: "হাবশায় হিজরতের ফলে কী লাভ হয়েছিল?", options: ["মুসলিমরা ধনী হয়েছিল", "মুসলিমরা শান্তিতে ইবাদত করার সুযোগ পেয়েছিল", "কুরাইশরা মুসলিম হয়েছিল", "হাবশা দখল হয়েছিল"], correctIndex: 1, note: "তাঁরা সেখানে শান্তি ও নিরাপত্তার সঙ্গে থাকতে শুরু করেন। (উৎস: পৃষ্ঠা ৪7)"},
+            {question: "হাবশায় হিজরতের ফলে কী লাভ হয়েছিল?", options: ["মুসলিমরা ধনী হয়েছিল", "মুসলিমরা শান্তিতে ইবাদত করার সুযোগ পেয়েছিল", "কুরাইশরা মুসলিম হয়েছিল", "হাবশা দখল হয়েছিল"], correctIndex: 1, note: "তাঁরা সেখানে শান্তি ও নিরাপত্তার সঙ্গে থাকতে শুরু করেন। (উৎস: পৃষ্ঠা ৪৭)"},
             {question: "নবিজি (সা.) কোন বংশের ছিলেন?", options: ["বনি উমাইয়া", "বনি হাশিম", "বনি তাইম", "বনি আদি"], correctIndex: 1, note: "বনি হাশিম ও বনি আবদুল মুত্তালিব গোত্র নবি (সা.)-এর পক্ষে আছে। (উৎস: পৃষ্ঠা ৪৫)"},
             {question: "কুরাইশরা হাজরে আসওয়াদ নিয়ে কেন বিবাদে জড়িয়েছিল?", options: ["পাথরটি চুরি করার জন্য", "পাথরটি কে স্থাপন করবে সেই সম্মানের জন্য", "পাথরটি ভেঙে ফেলার জন্য", "পাথরটি বিক্রি করার জন্য"], correctIndex: 1, note: "প্রত্যেক গোত্রের নির্বাচিত ব্যক্তিরা যেন চাদরের প্রান্ত ধরে তা নির্ধারিত স্থানে নিয়ে যায়... (অর্থাৎ সবাই সম্মান পেতে চেয়েছিল)। (উৎস: পৃষ্ঠা ৪২)"},
             {question: "নবুওয়ত লাভের পর প্রথম দিকে ওহি কিছুদিন বন্ধ থাকার পর পুনরায় নাজিল হলে নবিজিকে কী আদেশ দেওয়া হয়?", options: ["যুদ্ধ করার", "ইসলাম প্রচারের", "হিজরতের", "বিয়ে করার"], correctIndex: 1, note: "কিছুদিন পর পুনরায় ওহি নাজিল হতে শুরু করল। তখন তাঁকে ইসলাম প্রচারের আদেশ দেয়া হলো। (উৎস: পৃষ্ঠা ৪২)"}
@@ -234,6 +244,111 @@
                     resources: [{ label: 'বইঃ "সীরাতে খাতামুল আম্বিয়া"<br />(লেখকঃ মুফতী মুহাম্মদ শফী)', url: "#" }]
                 },
                 quiz: []
+            },
+            // NEW SECTION: মহিলাদের হালাকাহ
+            {
+                id: 101,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1TsM9B0GElMMMo-8Qj_rO_Sv3QaNhv9Oe/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১ঃ নামাজ",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 102,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1KAfzoRaNAJrq0JioJuyN6-xZOGejBuEs/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-২ঃ ইলমের গুরুত্ব ও ফজিলত",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 103,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1ijQkY8gQz7Z3rMH-8hxDNoyaQcodoiRs/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৩ঃ মুখের হেফাজত",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 104,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1fR73OwMi86biSGcQigLAhwbi_Mi9KTo9/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৪ঃ আদর্শ পরিবার ০১",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 105,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1fa_Izojw3E3t3UmSIba0H2LC8s5cfIr6/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৫ঃ আদর্শ পরিবার ২",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 106,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1UYihVWlwr_rVLRcdk9F6UvFD6pb6XgZ7/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৭ঃ আদর্শ পরিবার ৩",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 107,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1r8IUAgt1mG8fANf1e5GAQCG99wWnWmof/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৮ঃ পরকীয়া",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 108,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1cqm0Uaf2JkMz_qsVDLt-VTMz4jfwp7pI/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৯ঃ নেক সন্তান ০১",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
             }
         ];
 
@@ -252,6 +367,7 @@
             footerText: "সর্বস্বত্ব সংরক্ষিত © ২০২৬ | মাসউদ আলিমী",
             tafsir: "তাফসির",
             seerat: "সীরাত",
+            halakah: "মহিলাদের হালাকাহ", // Added new category text
             all: "সব",
             noResults: "কোনো ক্লাস খুঁজে পাওয়া যায়নি।",
             takeQuiz: "কুইজ টেস্ট দিন",
@@ -286,9 +402,9 @@
             leaderboardTitle: "মেধাতালিকা",
             rank: "অবস্থান",
             name: "নাম",
-            score: "নম্বর",
-            time: "সময়",
-            submissionSerial: "জমার ক্রম", // CHANGED from জমার সিরিয়াল
+            score: "প্রাপ্ত নম্বর", 
+            time: "জমার সময়",   
+            submissionSerial: "জমার ক্রম", 
             viewLeaderboard: "মেধাতালিকা দেখুন"
         };
 
@@ -402,6 +518,7 @@
 
             let html = '';
             
+            // Header logic: Show header everywhere EXCEPT in active quiz mode/registration
             if (state.view !== 'quiz' && state.view !== 'quiz_registration') {
                 html += `<div class="sticky top-0 z-50 w-full flex flex-col">`;
                 html += renderHeader();
@@ -512,7 +629,7 @@
 
                 <div class="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-30 py-2 mb-8">
                     <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
-                        ${['all', 'tafsir', 'seerat'].map(cat => {
+                        ${['all', 'tafsir', 'seerat', 'halakah'].map(cat => {
                             const isActive = state.filter === cat;
                             const activeClass = state.darkMode ? 'bg-emerald-600 text-white' : 'bg-emerald-600 text-white shadow-glow';
                             const inactiveClass = state.darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-stone-100 border border-stone-200';
@@ -538,8 +655,19 @@
 
         function renderLectureCard(lecture) {
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
-            const catColor = lecture.category === 'tafsir' ? 'bg-emerald-500' : 'bg-amber-500';
-            const badgeBg = state.darkMode ? 'bg-slate-700 text-slate-300' : 'bg-stone-100 text-stone-600';
+            
+            // Dynamic Color Logic based on category
+            let catColor = 'bg-emerald-500';
+            let badgeBg = state.darkMode ? 'bg-slate-700 text-slate-300' : 'bg-stone-100 text-stone-600';
+            
+            if (lecture.category === 'tafsir') {
+                catColor = 'bg-emerald-500';
+            } else if (lecture.category === 'seerat') {
+                catColor = 'bg-amber-500';
+            } else if (lecture.category === 'halakah') {
+                catColor = 'bg-rose-500'; // New color for Halakah
+            }
+
             const titleColor = state.darkMode ? 'text-slate-100' : 'text-slate-800';
 
             return `
@@ -601,9 +729,10 @@
             const l = state.selectedLecture;
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
             const titleColor = state.darkMode ? 'text-emerald-100' : 'text-emerald-900';
-            const badgeClass = l.category === 'tafsir' 
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' 
-                : 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
+            
+            let badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
+            if (l.category === 'seerat') badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
+            else if (l.category === 'halakah') badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200';
             
             const playerBg = state.darkMode ? 'bg-slate-900' : 'bg-stone-50';
 
@@ -684,287 +813,6 @@
             `;
         }
 
-        function renderQuizRegistration() {
-            const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
-            const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
-            
-            return `
-            <div class="min-h-screen ${bgClass} flex flex-col items-center justify-center p-6 animate-fade-in">
-                <div class="max-w-md w-full rounded-2xl shadow-xl overflow-hidden ${cardBg} border p-8 relative">
-                    <!-- Close Button -->
-                    <button onclick="actions.goHome()" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
-                        <i data-lucide="x" class="w-5 h-5 opacity-60"></i>
-                    </button>
-                    
-                    <div class="text-center mb-8">
-                        <!-- ADDED BISMILLAH -->
-                        <p class="font-serif text-2xl text-emerald-600 dark:text-emerald-400 mb-4 font-bold">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
-                        
-                        <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="user-plus" class="w-8 h-8"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold mb-2">${TEXTS.enterDetails}</h2>
-                        <p class="text-sm opacity-60">কুইজ শুরু করার আগে দয়া করে আপনার পরিচয় দিন</p>
-                    </div>
-
-                    <div class="space-y-5">
-                        <div class="space-y-2">
-                            <label class="text-sm font-bold opacity-80 block">${TEXTS.nameLabel}</label>
-                            <input type="text" id="reg-name" placeholder="${TEXTS.namePlaceholder}" 
-                                class="w-full px-4 py-3 rounded-lg border bg-transparent focus:ring-2 focus:ring-emerald-500 outline-none transition ${state.darkMode ? 'border-slate-600 placeholder-slate-500' : 'border-gray-300 placeholder-gray-400'}">
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <label class="text-sm font-bold opacity-80 block">${TEXTS.guardianLabel}</label>
-                            <input type="text" id="reg-guardian" placeholder="${TEXTS.guardianPlaceholder}" 
-                                class="w-full px-4 py-3 rounded-lg border bg-transparent focus:ring-2 focus:ring-emerald-500 outline-none transition ${state.darkMode ? 'border-slate-600 placeholder-slate-500' : 'border-gray-300 placeholder-gray-400'}">
-                        </div>
-
-                        <button onclick="actions.submitRegistration()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all transform active:scale-95 flex items-center justify-center gap-2 mt-4">
-                            ${TEXTS.start} <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            `;
-        }
-
-        function renderQuiz() {
-            const qState = state.quiz;
-            const quizData = qState.questions; 
-            
-            const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
-            const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
-
-            // --- 1. REVIEW VIEW ---
-            if (qState.isReviewing) {
-                 return `
-                <div class="min-h-screen ${bgClass} animate-fade-in pb-20">
-                    <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800/95' : 'border-stone-200 bg-white/95'} backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-sm">
-                        <button onclick="actions.exitReview()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span>
-                        </button>
-                        <div class="font-bold text-lg">উত্তরপত্র পর্যালোচনা</div>
-                        <div class="w-10"></div> 
-                    </div>
-
-                    <div class="max-w-3xl mx-auto p-4 md:p-8 space-y-8">
-                        ${quizData.map((q, idx) => {
-                            const userAnswers = qState.userAnswers[idx] || [];
-                            const isMultiple = q.correctIndices && q.correctIndices.length > 0;
-                            
-                            let isCorrect = false;
-                            if (isMultiple) {
-                                isCorrect = userAnswers.length === q.correctIndices.length && userAnswers.every(val => q.correctIndices.includes(val));
-                            } else {
-                                isCorrect = userAnswers[0] === q.correctIndex;
-                            }
-
-                            const cardBorder = isCorrect ? 'border-emerald-500' : 'border-rose-500';
-                            const iconBg = isCorrect ? 'bg-emerald-500' : 'bg-rose-500';
-                            const icon = isCorrect ? 'check' : 'x';
-
-                            return `
-                            <div class="rounded-2xl border-l-4 ${cardBorder} shadow-sm bg-white dark:bg-slate-800 overflow-hidden">
-                                <div class="p-5 flex gap-4">
-                                    <div class="shrink-0 mt-0.5">
-                                        <div class="w-6 h-6 rounded-full ${iconBg} text-white flex items-center justify-center">
-                                            <i data-lucide="${icon}" class="w-4 h-4"></i>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-4 w-full">
-                                        <h4 class="font-bold text-lg leading-relaxed"><span class="opacity-40 mr-2">${idx + 1}.</span>${q.question}</h4>
-                                        
-                                        <div class="space-y-2">
-                                            ${q.options.map((opt, optIdx) => {
-                                                const isSelected = userAnswers.includes(optIdx);
-                                                const isRight = isMultiple ? q.correctIndices.includes(optIdx) : optIdx === q.correctIndex;
-                                                
-                                                let style = "p-3 rounded-lg border flex justify-between items-center text-sm ";
-                                                
-                                                if (isRight) {
-                                                    style += state.darkMode ? "bg-emerald-900/30 border-emerald-500/30 text-emerald-300" : "bg-emerald-50 border-emerald-200 text-emerald-800";
-                                                } else if (isSelected && !isRight) {
-                                                    style += state.darkMode ? "bg-rose-900/30 border-rose-500/30 text-rose-300" : "bg-rose-50 border-rose-200 text-rose-800";
-                                                } else {
-                                                    style += state.darkMode ? "border-slate-700 opacity-50" : "border-gray-100 text-gray-500";
-                                                }
-
-                                                return `<div class="${style}">
-                                                    <span>${opt}</span>
-                                                    ${isRight ? '<span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-100">সঠিক</span>' : ''}
-                                                    ${isSelected && !isRight ? '<span class="text-xs font-bold px-2 py-0.5 rounded bg-rose-200 dark:bg-rose-800 text-rose-800 dark:text-rose-100">আপনার উত্তর</span>' : ''}
-                                                </div>`;
-                                            }).join('')}
-                                        </div>
-
-                                        ${q.note ? `
-                                        <div class="mt-4 p-4 rounded-xl ${state.darkMode ? 'bg-indigo-900/20 text-indigo-200 border border-indigo-500/30' : 'bg-indigo-50 text-indigo-800 border border-indigo-100'} text-sm leading-relaxed">
-                                            <span class="block text-xs font-bold uppercase tracking-wider opacity-60 mb-1">ব্যাখ্যা</span>
-                                            ${q.note}
-                                        </div>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-                `; 
-            }
-            
-            // --- 2. RESULT VIEW ---
-            if (qState.isFinished) {
-                const percentage = Math.round((qState.score / quizData.length) * 100);
-                let message = "", icon = "", colorClass = "";
-                
-                if (percentage >= 80) { 
-                    message = "মাশাআল্লাহ! দুর্দান্ত হয়েছে।"; 
-                    icon = "trophy"; 
-                    colorClass = "text-yellow-500";
-                } else if (percentage >= 50) { 
-                    message = "ভালো হয়েছে, তবে আরও ভালো করা সম্ভব।"; 
-                    icon = "thumbs-up"; 
-                    colorClass = "text-emerald-500";
-                } else { 
-                    message = "দুঃখিত! আরও মনোযোগ দিয়ে ক্লাসটি করুন।"; 
-                    icon = "book-open"; 
-                    colorClass = "text-slate-400";
-                }
-
-                return `
-                <div class="min-h-screen ${bgClass} flex flex-col items-center justify-center p-6 animate-fade-in relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                        <div class="absolute top-10 left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
-                        <div class="absolute bottom-10 right-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl"></div>
-                    </div>
-
-                    <div class="max-w-lg w-full ${state.darkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-white/90 border-white'} border backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 text-center relative z-10">
-                        
-                        <div class="mb-6 pb-6 border-b ${state.darkMode ? 'border-slate-600' : 'border-gray-200'}">
-                            <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">${qState.userName}</h3>
-                            <p class="text-sm opacity-70">পিতা/স্বামী: <span class="font-medium">${qState.userGuardian}</span></p>
-                        </div>
-                        
-                        <div class="relative inline-block mb-6">
-                            <div class="absolute inset-0 bg-current opacity-20 rounded-full animate-ping ${colorClass}"></div>
-                            <div class="w-24 h-24 rounded-full ${state.darkMode ? 'bg-slate-700' : 'bg-slate-50'} flex items-center justify-center shadow-inner relative z-10">
-                                <i data-lucide="${icon}" class="w-10 h-10 ${colorClass}"></i>
-                            </div>
-                        </div>
-
-                        <h2 class="text-xl font-bold opacity-60 uppercase tracking-widest mb-2">${TEXTS.yourScore}</h2>
-                        
-                        <div class="flex items-baseline justify-center gap-1 mb-6">
-                            <span class="text-7xl font-black ${colorClass}">${qState.score}</span>
-                            <span class="text-3xl font-bold opacity-30">/ ${quizData.length}</span>
-                        </div>
-
-                        <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full mb-8 overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-1000 ease-out ${percentage >= 50 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-rose-400 to-rose-600'}" style="width: ${percentage}%"></div>
-                        </div>
-
-                        <div class="p-4 rounded-xl ${state.darkMode ? 'bg-slate-700/50' : 'bg-slate-100'} mb-8">
-                            <p class="text-lg font-medium leading-relaxed">"${message}"</p>
-                        </div>
-                        
-                        <div class="space-y-3">
-                            <button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                                <i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}
-                            </button>
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <button onclick="actions.exitQuiz()" class="py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2">
-                                    <i data-lucide="home" class="w-4 h-4"></i> ${TEXTS.back}
-                                </button>
-                                <button onclick="actions.reviewQuizAnswers()" class="py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2">
-                                    <i data-lucide="list-checks" class="w-4 h-4"></i> উত্তর দেখুন
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                `;
-            }
-
-            // --- 3. QUIZ TAKING VIEW ---
-            return `
-            <div class="min-h-screen flex flex-col ${bgClass} animate-fade-in">
-                <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800' : 'border-stone-200 bg-white'} flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                    <button onclick="actions.exitQuiz()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
-                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                    </button>
-                    <div class="text-center">
-                        <div class="font-bold text-lg">কুইজ প্রতিযোগিতা</div>
-                        <div class="text-xs opacity-50 font-medium">পরীক্ষার্থী: ${qState.userName}</div>
-                    </div>
-                    <div class="w-10"></div> 
-                </div>
-
-                <div class="flex-1 p-4 md:p-8 max-w-3xl mx-auto w-full space-y-12 pb-40 md:pb-48">
-                    ${quizData.map((q, qIdx) => {
-                        const isMultiple = q.correctIndices && q.correctIndices.length > 0;
-                        const userAnswers = qState.userAnswers[qIdx] || [];
-
-                        return `
-                        <div class="animate-fade-in" style="animation-delay: ${qIdx * 0.05}s">
-                            <div class="flex items-start gap-4 mb-6">
-                                <span class="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-sm shadow-md">${qIdx + 1}</span>
-                                <div class="space-y-1">
-                                    <h3 class="text-xl font-bold leading-relaxed">${q.question}</h3>
-                                    ${isMultiple ? '<span class="inline-block text-[10px] font-bold bg-amber-100 dark:bg-amber-900 dark:bg-opacity-40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded uppercase tracking-tighter">একাধিক উত্তর হতে পারে</span>' : ''}
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 gap-3 pl-12">
-                                ${q.options.map((option, optIdx) => {
-                                    const isSelected = userAnswers.includes(optIdx);
-                                    let optionClass = state.darkMode 
-                                        ? (isSelected ? 'bg-emerald-900 bg-opacity-40 border-emerald-500 ring-1 ring-emerald-500' : 'bg-slate-800 border-slate-700 hover:border-slate-500') 
-                                        : (isSelected ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500' : 'bg-white border-stone-200 hover:border-stone-400 shadow-sm');
-                                    
-                                    let marker = isMultiple 
-                                        ? (isSelected ? '<i data-lucide="check-square" class="w-5 h-5 text-emerald-500"></i>' : '<i data-lucide="square" class="w-5 h-5 opacity-30"></i>')
-                                        : (isSelected ? '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500"></i>' : '<i data-lucide="circle" class="w-5 h-5 opacity-30"></i>');
-
-                                    return `
-                                    <button 
-                                        onclick="actions.toggleQuizOption(${qIdx}, ${optIdx}, ${isMultiple})"
-                                        class="w-full p-4 rounded-xl border-2 text-left font-medium transition-all duration-200 flex items-center justify-between group ${optionClass}"
-                                    >
-                                        <div class="flex items-center">
-                                            <span class="mr-3 opacity-40 font-bold">${String.fromCharCode(65 + optIdx)}.</span>
-                                            <span class="${isSelected ? 'text-emerald-700 dark:text-emerald-300 font-bold' : ''}">${option}</span>
-                                        </div>
-                                        ${marker}
-                                    </button>
-                                    `;
-                                }).join('')}
-                            </div>
-                        </div>
-                        `;
-                    }).join('<div class="w-full h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent my-10"></div>')}
-                </div>
-
-                <div class="fixed bottom-0 left-0 right-0 p-4 ${state.darkMode ? 'bg-slate-900 bg-opacity-90' : 'bg-white bg-opacity-90'} backdrop-blur-md border-t ${state.darkMode ? 'border-slate-700' : 'border-stone-200'} z-20">
-                    <div class="max-w-3xl mx-auto flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-xs uppercase tracking-widest opacity-50 font-bold">অগ্রগতি</span>
-                            <span class="text-sm font-bold text-emerald-600">${Object.keys(qState.userAnswers).length} / ${quizData.length} সম্পন্ন</span>
-                        </div>
-                        <button 
-                            onclick="actions.submitAllAnswers()" 
-                            class="px-10 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-xl transition transform active:scale-95 disabled:opacity-30 disabled:grayscale disabled:scale-100" 
-                            ${Object.keys(qState.userAnswers).length === 0 ? 'disabled' : ''}
-                        >
-                            জমা দিন
-                        </button>
-                    </div>
-                </div>
-            </div>
-            `;
-        }
-
         // --- RENDER LEADERBOARD ---
         function renderLeaderboard() {
             const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
@@ -992,11 +840,11 @@
                                     <tr class="${state.darkMode ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-600 text-white'} uppercase text-base font-bold tracking-wider">
                                         <!-- Changed # to মেধাস্থান -->
                                         <th class="p-4 w-20 text-center">মেধাস্থান</th>
-                                        <th class="p-4">${TEXTS.name}</th>
+                                        <th class="p-4 text-center">${TEXTS.name}</th>
                                         <!-- Swapped Score and Submission Serial -->
                                         <th class="p-4 text-center">${TEXTS.score}</th>
                                         <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
-                                        <th class="p-4 text-right hidden sm:table-cell">${TEXTS.time}</th>
+                                        <th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1040,7 +888,7 @@
                                                     ${toBanglaDigit(user.submissionSerial || '-')}
                                                 </span>
                                             </td>
-                                            <td class="p-4 text-right align-middle text-sm opacity-60 hidden sm:table-cell">
+                                            <td class="p-4 text-center align-middle text-sm opacity-60 hidden sm:table-cell">
                                                 ${new Date(user.timestamp).toLocaleString('bn-BD', { 
                                                     year: 'numeric', 
                                                     month: 'long', 
