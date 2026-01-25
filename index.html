@@ -51,18 +51,21 @@
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-33.3333%); } }
         .animate-marquee { display: flex; width: max-content; animation: marquee 12s linear infinite; }
         .animate-marquee:hover { animation-play-state: paused; }
-        @keyframes pop { 0% { transform: scale(0.95); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 transition-colors duration-300 min-h-screen flex flex-col antialiased">
 
     <div id="app" class="contents"></div>
 
-    <script>
-        // --- DATA & CONFIG ---
+    <!-- MAIN SCRIPT (Module for Firebase) -->
+    <script type="module">
+        // --- 1. FIREBASE IMPORTS ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- 2. DATA CONSTANTS (MOVED TO TOP TO FIX REFERENCE ERRORS) ---
         
-        // GLOBAL QUIZ BANK (All 100 Questions)
         const ALL_QUIZZES = [
             {question: "নবিজি (সা.)-এর নবুওয়ত লাভের সময় তাঁর বয়স কত ছিল?", options: ["ত্রিশ বছর", "চল্লশ বছর একদিন", "পঁয়ত্রিশ বছর", "পঁয়তাল্লিশ বছর"], correctIndex: 1, note: "নবিজি (সা.)-এর বয়স যখন চল্লিশ বছর একদিন পূর্ণ হলো, তখন তাঁকে নবুওয়তের বিশেষ সম্মানে ভূষিত করা হয়। (উৎস: পৃষ্ঠা ৪২)"},
             {question: "নবুওয়ত লাভের তারিখটি আরবি কোন মাসে ছিল?", options: ["রমজান", "শাওয়াল", "রবিউল আউয়াল", "মহররম"], correctIndex: 2, note: "জয়-তারিখের মতো নবুওয়ত লাভের তারিখও ছিল রবিউল আউয়াল মাসের কোনো এক সোমবার। (উৎস: পৃষ্ঠা ৪২)"},
@@ -160,7 +163,7 @@
             {question: "ইসলামের দাওয়াত শুনে উতবা ইবনু রবিয়া তার সম্প্রদায়ের কাছে ফিরে কী বলেছিল?", options: ["মুহাম্মাদকে এখনই হত্যা করো", "আমি এমন বাণী শুনেছি যা জাদুকর বা কবির নয়", "মুহাম্মাদ পাগল হয়ে গেছে", "আমি কিছুই বুঝিনি"], correctIndex: 1, note: "আল্লাহর কসম! আজ আমি এমন একটি বাণী শুনেছি, যা এই জীবনে কখনো শুনিনি... কবিতা নয়, জাদুমন্ত্রও নয়। (উৎস: পৃষ্ঠা ৪৭)"},
             {question: "বনি হাশিম ও বনি আবদুল মুত্তালিব কেন নবিজি (সা.)-কে রক্ষা করেছিল?", options: ["তারা সবাই মুসলিম ছিল", "গোত্রীয় টান ও আবু তালিবের সম্মানে", "তারা টাকার বিনিময়ে রক্ষা করত", "তারা কুরাইশদের ভয় পেত না"], correctIndex: 1, note: "কুরাইশ দেখল যে, বনি হাশিম ও বনি আবদুল মুত্তালিব গোত্র নবি (সা.)-এর পক্ষে আছে। (এটি মূলত গোত্রীয় প্রথা ছিল, সবাই মুসলিম ছিল না)। (উৎস: পৃষ্ঠা ৪৫)"},
             {question: "আবু তালিব শেষ পর্যন্ত কী করেছিলেন?", options: ["ইসলাম গ্রহণ করেছিলেন", "নবিজিকে সমর্থন দিয়ে গিয়েছিলেন", "নবিজিকে ত্যাগ করেছিলেন", "মক্কা ছেড়েছিলেন"], correctIndex: 1, note: "আমি কখনো তোমার সমর্থন ও সাহায্য থেকে পিছিয়ে আসব না। (উৎস: পৃষ্ঠা ৪৫)"},
-            {question: "হাবশায় হিজরতের ফলে কী লাভ হয়েছিল?", options: ["মুসলিমরা ধনী হয়েছিল", "মুসলিমরা শান্তিতে ইবাদত করার সুযোগ পেয়েছিল", "কুরাইশরা মুসলিম হয়েছিল", "হাবশা দখল হয়েছিল"], correctIndex: 1, note: "তাঁরা সেখানে শান্তি ও নিরাপত্তার সঙ্গে থাকতে শুরু করেন। (উৎস: পৃষ্ঠা ৪৭)"},
+            {question: "হাবশায় হিজরতের ফলে কী লাভ হয়েছিল?", options: ["মুসলিমরা ধনী হয়েছিল", "মুসলিমরা শান্তিতে ইবাদত করার সুযোগ পেয়েছিল", "কুরাইশরা মুসলিম হয়েছিল", "হাবশা দখল হয়েছিল"], correctIndex: 1, note: "তাঁরা সেখানে শান্তি ও নিরাপত্তার সঙ্গে থাকতে শুরু করেন। (উৎস: পৃষ্ঠা ৪7)"},
             {question: "নবিজি (সা.) কোন বংশের ছিলেন?", options: ["বনি উমাইয়া", "বনি হাশিম", "বনি তাইম", "বনি আদি"], correctIndex: 1, note: "বনি হাশিম ও বনি আবদুল মুত্তালিব গোত্র নবি (সা.)-এর পক্ষে আছে। (উৎস: পৃষ্ঠা ৪৫)"},
             {question: "কুরাইশরা হাজরে আসওয়াদ নিয়ে কেন বিবাদে জড়িয়েছিল?", options: ["পাথরটি চুরি করার জন্য", "পাথরটি কে স্থাপন করবে সেই সম্মানের জন্য", "পাথরটি ভেঙে ফেলার জন্য", "পাথরটি বিক্রি করার জন্য"], correctIndex: 1, note: "প্রত্যেক গোত্রের নির্বাচিত ব্যক্তিরা যেন চাদরের প্রান্ত ধরে তা নির্ধারিত স্থানে নিয়ে যায়... (অর্থাৎ সবাই সম্মান পেতে চেয়েছিল)। (উৎস: পৃষ্ঠা ৪২)"},
             {question: "নবুওয়ত লাভের পর প্রথম দিকে ওহি কিছুদিন বন্ধ থাকার পর পুনরায় নাজিল হলে নবিজিকে কী আদেশ দেওয়া হয়?", options: ["যুদ্ধ করার", "ইসলাম প্রচারের", "হিজরতের", "বিয়ে করার"], correctIndex: 1, note: "কিছুদিন পর পুনরায় ওহি নাজিল হতে শুরু করল। তখন তাঁকে ইসলাম প্রচারের আদেশ দেয়া হলো। (উৎস: পৃষ্ঠা ৪২)"}
@@ -199,7 +202,7 @@
                     ],
                     syllabus: `পরীক্ষা দারস ও "সীরাতে খাতামুল আম্বিয়া" বইয়ের ২১ থেকে ২৬ নম্বর পৃষ্ঠা পর্যন্ত এর উপর হবে।`,
                     resources: [{ label: 'বইঃ "সীরাতে খাতামুল আম্বিয়া"<br />(লেখকঃ মুফতী মুহাম্মদ শফী)', url: "#" }],
-                    hasFamilyTree: true
+                    // hasFamilyTree: true REMOVED
                 },
                 quiz: []
             },
@@ -267,7 +270,7 @@
             correctAnswerIs: "সঠিক উত্তরটি হলো:",
             
             // Global Quiz Promo Texts
-            globalQuizTitle: "সীরাত কুইজ পরীক্ষা", // CHANGED: প্রতিযোগিতা -> পরীক্ষা
+            globalQuizTitle: "সীরাত কুইজ পরীক্ষা",
             globalQuizDesc: "আপনার সীরাত জ্ঞান যাচাই করুন এবং নিজেকে প্রস্তুত করুন।",
             startGlobalQuiz: "কুইজ শুরু করুন",
             
@@ -277,7 +280,16 @@
             nameLabel: "আপনার নাম",
             guardianLabel: "পিতা/স্বামীর নাম",
             namePlaceholder: "আপনার পূর্ণ নাম লিখুন...",
-            guardianPlaceholder: "নাম লিখুন..."
+            guardianPlaceholder: "নাম লিখুন...",
+            
+            // Leaderboard
+            leaderboardTitle: "মেধাতালিকা",
+            rank: "অবস্থান",
+            name: "নাম",
+            score: "নম্বর",
+            time: "সময়",
+            submissionSerial: "জমার সিরিয়াল", 
+            viewLeaderboard: "মেধাতালিকা দেখুন"
         };
 
         const latestLectureWithSyllabus = [...COURSE_DATA].reverse().find(l => l.content.syllabus);
@@ -304,10 +316,51 @@
                 userAnswers: {},
                 userName: "",
                 userGuardian: ""
-            }
+            },
+            leaderboardData: []
         };
 
-        // --- UTILITIES ---
+        // --- 3. GLOBAL VARIABLES ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "demo", authDomain: "demo.firebaseapp.com", projectId: "demo" }; 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'seerat-course-v1';
+        
+        let db, auth, currentUser;
+        let unsubscribeLeaderboard = null;
+
+        // --- 4. INIT FIREBASE ---
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            const initAuth = async () => {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (e) {
+                    console.error("Auth Error:", e);
+                }
+            };
+            initAuth();
+
+            // Note: Now safe because 'state' is defined above
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user && state.view === 'leaderboard') {
+                    if (typeof actions !== 'undefined') {
+                        actions.fetchLeaderboardData(); 
+                    }
+                }
+            });
+
+        } catch (e) {
+            console.warn("Firebase not initialized (Offline Mode)", e);
+        }
+
+        // --- 5. UTILITIES ---
         const getDriveEmbedLink = (url) => {
             if (typeof url !== 'string') return url;
             const parts = url.split("/d/");
@@ -320,7 +373,7 @@
 
         const MosqueIcon = () => `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M10 6h4"/><path d="M12 6c3.5 0 6 3 6 7h-12c0-4 2.5-7 6-7Z"/><path d="M18 13v8"/><path d="M6 13v8"/><path d="M6 21h12"/><path d="M10 21v-4a2 2 0 0 1 4 0v4"/></svg>`;
 
-        // --- RENDER FUNCTIONS ---
+        // --- 6. RENDER FUNCTIONS ---
         const app = document.getElementById('app');
         const body = document.body;
 
@@ -337,7 +390,6 @@
 
             let html = '';
             
-            // Header logic: Show header everywhere EXCEPT in active quiz mode/registration
             if (state.view !== 'quiz' && state.view !== 'quiz_registration') {
                 html += `<div class="sticky top-0 z-50 w-full flex flex-col">`;
                 html += renderHeader();
@@ -355,6 +407,8 @@
                 html += renderQuizRegistration();
             } else if (state.view === 'quiz') {
                 html += renderQuiz();
+            } else if (state.view === 'leaderboard') {
+                html += renderLeaderboard();
             }
 
             app.innerHTML = html;
@@ -425,7 +479,7 @@
                     </p>
                 </div>
 
-                <!-- ADDED SECTION: GLOBAL QUIZ PROMO -->
+                <!-- GLOBAL QUIZ PROMO -->
                 <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-6 text-white mb-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
                     <div class="space-y-2">
                         <div class="flex items-center gap-2 text-emerald-200 text-sm font-bold uppercase tracking-wider">
@@ -434,9 +488,14 @@
                         <h3 class="text-2xl font-bold">${TEXTS.globalQuizTitle}</h3>
                         <p class="opacity-90 max-w-lg">${TEXTS.globalQuizDesc}</p>
                     </div>
-                    <button onclick="actions.startQuiz()" class="bg-white text-emerald-700 px-8 py-3 rounded-full font-bold hover:bg-emerald-50 hover:scale-105 transition-all shadow-xl flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.startGlobalQuiz}
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="actions.viewLeaderboard()" class="bg-teal-900 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg flex items-center gap-2 whitespace-nowrap border-none">
+                            <i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}
+                        </button>
+                        <button onclick="actions.startQuiz()" class="bg-white text-emerald-700 px-8 py-3 rounded-full font-bold hover:bg-emerald-50 hover:scale-105 transition-all shadow-xl flex items-center gap-2 whitespace-nowrap">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.startGlobalQuiz}
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-30 py-2 mb-8">
@@ -465,7 +524,6 @@
             `;
         }
 
-        // --- UPDATED RENDER LECTURE CARD (New Beautiful Design) ---
         function renderLectureCard(lecture) {
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
             const catColor = lecture.category === 'tafsir' ? 'bg-emerald-500' : 'bg-amber-500';
@@ -614,7 +672,6 @@
             `;
         }
 
-        // --- NEW: RENDER QUIZ REGISTRATION (WITH BISMILLAH) ---
         function renderQuizRegistration() {
             const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
@@ -660,7 +717,6 @@
             `;
         }
 
-        // --- UPDATED RENDER QUIZ (Scrollable List Mode) ---
         function renderQuiz() {
             const qState = state.quiz;
             const quizData = qState.questions; 
@@ -668,11 +724,10 @@
             const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
 
-            // --- 1. REVIEW VIEW (Priority Check: If reviewing, show this first) ---
+            // --- 1. REVIEW VIEW ---
             if (qState.isReviewing) {
                  return `
                 <div class="min-h-screen ${bgClass} animate-fade-in pb-20">
-                    <!-- Sticky Header -->
                     <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800/95' : 'border-stone-200 bg-white/95'} backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-sm">
                         <button onclick="actions.exitReview()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span>
@@ -746,7 +801,7 @@
                 `; 
             }
             
-            // --- 2. RESULT VIEW (After Submission) ---
+            // --- 2. RESULT VIEW ---
             if (qState.isFinished) {
                 const percentage = Math.round((qState.score / quizData.length) * 100);
                 let message = "", icon = "", colorClass = "";
@@ -767,7 +822,6 @@
 
                 return `
                 <div class="min-h-screen ${bgClass} flex flex-col items-center justify-center p-6 animate-fade-in relative overflow-hidden">
-                    <!-- Background Decoration -->
                     <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                         <div class="absolute top-10 left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
                         <div class="absolute bottom-10 right-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl"></div>
@@ -775,13 +829,11 @@
 
                     <div class="max-w-lg w-full ${state.darkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-white/90 border-white'} border backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 text-center relative z-10">
                         
-                        <!-- NEW: User Details on Score Card -->
                         <div class="mb-6 pb-6 border-b ${state.darkMode ? 'border-slate-600' : 'border-gray-200'}">
                             <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">${qState.userName}</h3>
                             <p class="text-sm opacity-70">পিতা/স্বামী: <span class="font-medium">${qState.userGuardian}</span></p>
                         </div>
                         
-                        <!-- Icon Circle with Pulse -->
                         <div class="relative inline-block mb-6">
                             <div class="absolute inset-0 bg-current opacity-20 rounded-full animate-ping ${colorClass}"></div>
                             <div class="w-24 h-24 rounded-full ${state.darkMode ? 'bg-slate-700' : 'bg-slate-50'} flex items-center justify-center shadow-inner relative z-10">
@@ -796,7 +848,6 @@
                             <span class="text-3xl font-bold opacity-30">/ ${quizData.length}</span>
                         </div>
 
-                        <!-- Progress Bar -->
                         <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full mb-8 overflow-hidden">
                             <div class="h-full rounded-full transition-all duration-1000 ease-out ${percentage >= 50 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-rose-400 to-rose-600'}" style="width: ${percentage}%"></div>
                         </div>
@@ -806,8 +857,8 @@
                         </div>
                         
                         <div class="space-y-3">
-                            <button onclick="actions.retryQuiz()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                                <i data-lucide="rotate-ccw" class="w-5 h-5"></i> ${TEXTS.retry}
+                            <button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                <i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}
                             </button>
                             
                             <div class="grid grid-cols-2 gap-3">
@@ -824,10 +875,9 @@
                 `;
             }
 
-            // --- 3. QUIZ TAKING VIEW (Scrolling List) ---
+            // --- 3. QUIZ TAKING VIEW ---
             return `
             <div class="min-h-screen flex flex-col ${bgClass} animate-fade-in">
-                <!-- Header -->
                 <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800' : 'border-stone-200 bg-white'} flex items-center justify-between sticky top-0 z-20 shadow-sm">
                     <button onclick="actions.exitQuiz()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
@@ -839,7 +889,6 @@
                     <div class="w-10"></div> 
                 </div>
 
-                <!-- Scrollable Question List -->
                 <div class="flex-1 p-4 md:p-8 max-w-3xl mx-auto w-full space-y-12 pb-40 md:pb-48">
                     ${quizData.map((q, qIdx) => {
                         const isMultiple = q.correctIndices && q.correctIndices.length > 0;
@@ -885,7 +934,6 @@
                     }).join('<div class="w-full h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent my-10"></div>')}
                 </div>
 
-                <!-- Fixed Bottom Submit Bar -->
                 <div class="fixed bottom-0 left-0 right-0 p-4 ${state.darkMode ? 'bg-slate-900 bg-opacity-90' : 'bg-white bg-opacity-90'} backdrop-blur-md border-t ${state.darkMode ? 'border-slate-700' : 'border-stone-200'} z-20">
                     <div class="max-w-3xl mx-auto flex items-center justify-between">
                         <div class="flex flex-col">
@@ -905,7 +953,85 @@
             `;
         }
 
-        // --- UPDATED ACTIONS FOR QUIZ REVIEW ---
+        // --- RENDER LEADERBOARD ---
+        function renderLeaderboard() {
+            const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
+            const rowOdd = state.darkMode ? 'bg-slate-800/50' : 'bg-gray-50';
+            const rowEven = state.darkMode ? 'bg-slate-900/50' : 'bg-white';
+
+            return `
+            <div class="min-h-screen ${bgClass} flex flex-col animate-fade-in">
+                <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800/95' : 'border-stone-200 bg-white/95'} backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                    <button onclick="actions.goHome()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span>
+                    </button>
+                    <div class="font-bold text-lg flex items-center gap-2">
+                        <i data-lucide="trophy" class="w-5 h-5 text-yellow-500"></i> ${TEXTS.leaderboardTitle}
+                    </div>
+                    <div class="w-10"></div> 
+                </div>
+
+                <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+                    <div class="rounded-2xl overflow-hidden border ${state.darkMode ? 'border-slate-700' : 'border-stone-200'} shadow-lg">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="${state.darkMode ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-600 text-white'} uppercase text-xs font-bold tracking-wider">
+                                        <th class="p-4 w-16 text-center">#</th>
+                                        <th class="p-4">${TEXTS.name}</th>
+                                        <!-- Added Submission Serial Column -->
+                                        <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
+                                        <th class="p-4 text-center">${TEXTS.score}</th>
+                                        <th class="p-4 text-right hidden sm:table-cell">${TEXTS.time}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${state.leaderboardData.length > 0 ? state.leaderboardData.map((user, idx) => {
+                                        let rankDisplay = `<span class="font-bold opacity-50">#${idx + 1}</span>`;
+                                        if (idx === 0) rankDisplay = `<i data-lucide="crown" class="w-6 h-6 text-yellow-400 mx-auto fill-current"></i>`;
+                                        if (idx === 1) rankDisplay = `<i data-lucide="medal" class="w-6 h-6 text-gray-300 mx-auto fill-current"></i>`;
+                                        if (idx === 2) rankDisplay = `<i data-lucide="medal" class="w-6 h-6 text-amber-600 mx-auto fill-current"></i>`;
+
+                                        return `
+                                        <tr class="border-b last:border-0 border-gray-200 dark:border-gray-700 ${idx % 2 === 0 ? rowEven : rowOdd} hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                                            <td class="p-4 text-center align-middle">${rankDisplay}</td>
+                                            <td class="p-4 align-middle">
+                                                <div class="font-bold text-base md:text-lg">${user.name}</div>
+                                                <div class="text-xs opacity-60">অভিভাবক: ${user.guardian || '-'}</div>
+                                            </td>
+                                            <!-- Serial Number Display -->
+                                            <td class="p-4 text-center align-middle">
+                                                <span class="inline-block px-3 py-1 rounded bg-gray-100 dark:bg-slate-700 text-xs font-bold">
+                                                    ${user.submissionSerial || '-'}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-center align-middle">
+                                                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-bold text-sm">
+                                                    ${user.score}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-right align-middle text-sm opacity-60 hidden sm:table-cell">
+                                                ${new Date(user.timestamp).toLocaleString('bn-BD', { dateStyle: 'medium', timeStyle: 'short' })}
+                                            </td>
+                                        </tr>
+                                        `;
+                                    }).join('') : `
+                                        <tr>
+                                            <td colspan="5" class="p-10 text-center opacity-50">
+                                                এখনো কোনো ফলাফল জমা পড়েনি।
+                                            </td>
+                                        </tr>
+                                    `}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // --- 7. ACTIONS (Exposed to Window) ---
         const actions = {
             toggleTheme: () => { state.darkMode = !state.darkMode; render(); },
             goHome: () => { state.view = 'home'; state.selectedLecture = null; render(); },
@@ -913,9 +1039,8 @@
             setSearch: (val) => { state.search = val; if(state.view === 'home') render(); },
             selectLecture: (id) => { state.selectedLecture = COURSE_DATA.find(l => l.id === id); state.view = 'detail'; state.playbackRate = 1.0; window.scrollTo(0,0); render(); },
             
-            // QUIZ ACTIONS - NOW USES GLOBAL "ALL_QUIZZES"
+            // QUIZ ACTIONS
             startQuiz: () => { 
-                // Set initial state for registration
                 state.quiz = {
                     active: true,
                     currentQuestion: 0, 
@@ -935,7 +1060,6 @@
                 window.scrollTo(0, 0); 
             },
 
-            // Registration Submit
             submitRegistration: () => {
                 const name = document.getElementById('reg-name').value.trim();
                 const guardian = document.getElementById('reg-guardian').value.trim();
@@ -945,16 +1069,13 @@
                     return;
                 }
 
-                // Save info
                 state.quiz.userName = name;
                 state.quiz.userGuardian = guardian;
 
-                // Prepare Questions (Shuffle ALL QUESTIONS)
                 const questions = [...ALL_QUIZZES];
                 for (let i = questions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [questions[i], questions[j]] = [questions[j], questions[i]]; }
                 state.quiz.questions = questions;
 
-                // Move to Quiz View
                 state.view = 'quiz';
                 render();
                 window.scrollTo(0, 0);
@@ -993,13 +1114,26 @@
                 
                 state.quiz.score = score;
                 state.quiz.isFinished = true;
-                state.quiz.isReviewing = false; // Initially show score screen
+                state.quiz.isReviewing = false; 
+                
+                // SAVE SCORE TO FIRESTORE
+                if (currentUser) {
+                    try {
+                        addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), {
+                            name: state.quiz.userName,
+                            guardian: state.quiz.userGuardian,
+                            score: score,
+                            totalQuestions: state.quiz.questions.length,
+                            timestamp: Date.now()
+                        });
+                    } catch(e) { console.error("Save failed", e); }
+                }
+
                 window.scrollTo(0,0);
                 render();
             },
 
             retryQuiz: () => {
-                // Keep name/guardian, but reset quiz state
                 const oldName = state.quiz.userName;
                 const oldGuardian = state.quiz.userGuardian;
                 
@@ -1028,18 +1162,58 @@
             },
             
             exitReview: () => {
-                state.quiz.isReviewing = false; // Go back to score screen
+                state.quiz.isReviewing = false; 
                 window.scrollTo(0,0);
                 render();
             },
             
-            exitQuiz: () => { state.view = 'home'; render(); }, // Changed to go home since quiz is global
+            exitQuiz: () => { state.view = 'home'; render(); },
             
-            // FAMILY TREE ACTIONS
-            viewFamilyTree: () => { state.view = 'tree'; window.scrollTo(0,0); render(); },
-            goVisualizations: () => { state.view = 'visualizations'; state.selectedLecture = null; render(); },
-            closeVisualization: () => { if (state.selectedLecture) { state.view = 'detail'; } else { state.view = 'visualizations'; } render(); }
+            // LEADERBOARD ACTIONS
+            viewLeaderboard: () => {
+                state.view = 'leaderboard';
+                actions.fetchLeaderboardData();
+                render();
+                window.scrollTo(0, 0);
+            },
+
+            fetchLeaderboardData: () => {
+                if (!currentUser) return; // Wait for auth
+                
+                if (unsubscribeLeaderboard) unsubscribeLeaderboard();
+
+                const q = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+                
+                unsubscribeLeaderboard = onSnapshot(q, (snapshot) => {
+                    let data = [];
+                    snapshot.forEach((doc) => {
+                        data.push(doc.data());
+                    });
+
+                    // 1. Calculate Submission Serial (Sort by Time Oldest -> Newest)
+                    data.sort((a, b) => a.timestamp - b.timestamp);
+                    data = data.map((item, index) => ({
+                        ...item,
+                        submissionSerial: index + 1 // Assign 1, 2, 3... based on time
+                    }));
+
+                    // 2. Sort for Leaderboard Display (Score High->Low, then Time Oldest->Newest)
+                    data.sort((a, b) => {
+                        if (b.score !== a.score) {
+                            return b.score - a.score;
+                        }
+                        return a.timestamp - b.timestamp;
+                    });
+
+                    state.leaderboardData = data;
+                    if(state.view === 'leaderboard') render();
+                }, (error) => {
+                    console.error("Leaderboard fetch error:", error);
+                });
+            }
         };
+
+        window.actions = actions;
 
         function attachListeners() {
             // No global listeners needed
