@@ -983,12 +983,13 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="${state.darkMode ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-600 text-white'} uppercase text-xs font-bold tracking-wider">
+                                    <!-- Changed text-xs to text-base for bigger font -->
+                                    <tr class="${state.darkMode ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-600 text-white'} uppercase text-base font-bold tracking-wider">
                                         <th class="p-4 w-16 text-center">#</th>
                                         <th class="p-4">${TEXTS.name}</th>
-                                        <!-- Added Submission Serial Column -->
-                                        <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
+                                        <!-- Swapped Score and Submission Serial -->
                                         <th class="p-4 text-center">${TEXTS.score}</th>
+                                        <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
                                         <th class="p-4 text-right hidden sm:table-cell">${TEXTS.time}</th>
                                     </tr>
                                 </thead>
@@ -1006,15 +1007,15 @@
                                                 <div class="font-bold text-base md:text-lg">${user.name}</div>
                                                 <div class="text-xs opacity-60">অভিভাবক: ${user.guardian || '-'}</div>
                                             </td>
-                                            <!-- Serial Number Display -->
-                                            <td class="p-4 text-center align-middle">
-                                                <span class="inline-block px-3 py-1 rounded bg-gray-100 dark:bg-slate-700 text-xs font-bold">
-                                                    ${user.submissionSerial || '-'}
-                                                </span>
-                                            </td>
+                                            <!-- Swapped Body Columns -->
                                             <td class="p-4 text-center align-middle">
                                                 <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-bold text-sm">
                                                     ${user.score}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-center align-middle">
+                                                <span class="inline-block px-3 py-1 rounded bg-gray-100 dark:bg-slate-700 text-xs font-bold">
+                                                    ${user.submissionSerial || '-'}
                                                 </span>
                                             </td>
                                             <td class="p-4 text-right align-middle text-sm opacity-60 hidden sm:table-cell">
