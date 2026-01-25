@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>মাসউদ আলিমী - সীরাত কোর্স</title>
     
-    <!-- Google Fonts: Hind Siliguri -->
+    <!-- Google Fonts: Noto Sans Bengali & Hind Siliguri -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,9 +21,19 @@
         tailwind.config = {
             darkMode: 'class',
             theme: {
+                container: {
+                    center: true,
+                    padding: {
+                        DEFAULT: '1rem',
+                        sm: '1.5rem',
+                        lg: '2rem',
+                        xl: '2.5rem',
+                        '2xl': '3rem',
+                    },
+                },
                 extend: {
                     fontFamily: {
-                        sans: ['"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+                        sans: ['"Noto Sans Bengali"', '"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
                         serif: ['ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
                     },
                     colors: {
@@ -43,7 +53,7 @@
     </script>
 
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; }
+        body { font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -163,7 +173,7 @@
             {question: "ইসলামের দাওয়াত শুনে উতবা ইবনু রবিয়া তার সম্প্রদায়ের কাছে ফিরে কী বলেছিল?", options: ["মুহাম্মাদকে এখনই হত্যা করো", "আমি এমন বাণী শুনেছি যা জাদুকর বা কবির নয়", "মুহাম্মাদ পাগল হয়ে গেছে", "আমি কিছুই বুঝিনি"], correctIndex: 1, note: "আল্লাহর কসম! আজ আমি এমন একটি বাণী শুনেছি, যা এই জীবনে কখনো শুনিনি... কবিতা নয়, জাদুমন্ত্রও নয়। (উৎস: পৃষ্ঠা ৪৭)"},
             {question: "বনি হাশিম ও বনি আবদুল মুত্তালিব কেন নবিজি (সা.)-কে রক্ষা করেছিল?", options: ["তারা সবাই মুসলিম ছিল", "গোত্রীয় টান ও আবু তালিবের সম্মানে", "তারা টাকার বিনিময়ে রক্ষা করত", "তারা কুরাইশদের ভয় পেত না"], correctIndex: 1, note: "কুরাইশ দেখল যে, বনি হাশিম ও বনি আবদুল মুত্তালিব গোত্র নবি (সা.)-এর পক্ষে আছে। (এটি মূলত গোত্রীয় প্রথা ছিল, সবাই মুসলিম ছিল না)। (উৎস: পৃষ্ঠা ৪৫)"},
             {question: "আবু তালিব শেষ পর্যন্ত কী করেছিলেন?", options: ["ইসলাম গ্রহণ করেছিলেন", "নবিজিকে সমর্থন দিয়ে গিয়েছিলেন", "নবিজিকে ত্যাগ করেছিলেন", "মক্কা ছেড়েছিলেন"], correctIndex: 1, note: "আমি কখনো তোমার সমর্থন ও সাহায্য থেকে পিছিয়ে আসব না। (উৎস: পৃষ্ঠা ৪৫)"},
-            {question: "হাবশায় হিজরতের ফলে কী লাভ হয়েছিল?", options: ["মুসলিমরা ধনী হয়েছিল", "মুসলিমরা শান্তিতে ইবাদত করার সুযোগ পেয়েছিল", "কুরাইশরা মুসলিম হয়েছিল", "হাবশা দখল হয়েছিল"], correctIndex: 1, note: "তাঁরা সেখানে শান্তি ও নিরাপত্তার সঙ্গে থাকতে শুরু করেন। (উৎস: পৃষ্ঠা ৪7)"},
+            {question: "হাবশায় হিজরতের ফলে কী লাভ হয়েছিল?", options: ["মুসলিমরা ধনী হয়েছিল", "মুসলিমরা শান্তিতে ইবাদত করার সুযোগ পেয়েছিল", "কুরাইশরা মুসলিম হয়েছিল", "হাবশা দখল হয়েছিল"], correctIndex: 1, note: "তাঁরা সেখানে শান্তি ও নিরাপত্তার সঙ্গে থাকতে শুরু করেন। (উৎস: পৃষ্ঠা ৪৭)"},
             {question: "নবিজি (সা.) কোন বংশের ছিলেন?", options: ["বনি উমাইয়া", "বনি হাশিম", "বনি তাইম", "বনি আদি"], correctIndex: 1, note: "বনি হাশিম ও বনি আবদুল মুত্তালিব গোত্র নবি (সা.)-এর পক্ষে আছে। (উৎস: পৃষ্ঠা ৪৫)"},
             {question: "কুরাইশরা হাজরে আসওয়াদ নিয়ে কেন বিবাদে জড়িয়েছিল?", options: ["পাথরটি চুরি করার জন্য", "পাথরটি কে স্থাপন করবে সেই সম্মানের জন্য", "পাথরটি ভেঙে ফেলার জন্য", "পাথরটি বিক্রি করার জন্য"], correctIndex: 1, note: "প্রত্যেক গোত্রের নির্বাচিত ব্যক্তিরা যেন চাদরের প্রান্ত ধরে তা নির্ধারিত স্থানে নিয়ে যায়... (অর্থাৎ সবাই সম্মান পেতে চেয়েছিল)। (উৎস: পৃষ্ঠা ৪২)"},
             {question: "নবুওয়ত লাভের পর প্রথম দিকে ওহি কিছুদিন বন্ধ থাকার পর পুনরায় নাজিল হলে নবিজিকে কী আদেশ দেওয়া হয়?", options: ["যুদ্ধ করার", "ইসলাম প্রচারের", "হিজরতের", "বিয়ে করার"], correctIndex: 1, note: "কিছুদিন পর পুনরায় ওহি নাজিল হতে শুরু করল। তখন তাঁকে ইসলাম প্রচারের আদেশ দেয়া হলো। (উৎস: পৃষ্ঠা ৪২)"}
@@ -202,7 +212,7 @@
                     ],
                     syllabus: `পরীক্ষা দারস ও "সীরাতে খাতামুল আম্বিয়া" বইয়ের ২১ থেকে ২৬ নম্বর পৃষ্ঠা পর্যন্ত এর উপর হবে।`,
                     resources: [{ label: 'বইঃ "সীরাতে খাতামুল আম্বিয়া"<br />(লেখকঃ মুফতী মুহাম্মদ শফী)', url: "#" }],
-                    // hasFamilyTree: true REMOVED
+                    hasFamilyTree: true
                 },
                 quiz: []
             },
@@ -234,6 +244,189 @@
                     resources: [{ label: 'বইঃ "সীরাতে খাতামুল আম্বিয়া"<br />(লেখকঃ মুফতী মুহাম্মদ শফী)', url: "#" }]
                 },
                 quiz: []
+            },
+            // NEW SECTION: মহিলাদের হালাকাহ
+            {
+                id: 101,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1TsM9B0GElMMMo-8Qj_rO_Sv3QaNhv9Oe/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১ঃ নামাজ",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 102,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1KAfzoRaNAJrq0JioJuyN6-xZOGejBuEs/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-২ঃ ইলমের গুরুত্ব ও ফজিলত",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 103,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1ijQkY8gQz7Z3rMH-8hxDNoyaQcodoiRs/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৩ঃ মুখের হেফাজত",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 104,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1fR73OwMi86biSGcQigLAhwbi_Mi9KTo9/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৪ঃ আদর্শ পরিবার ০১",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 105,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1fa_Izojw3E3t3UmSIba0H2LC8s5cfIr6/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৫ঃ আদর্শ পরিবার ২",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 106,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1UYihVWlwr_rVLRcdk9F6UvFD6pb6XgZ7/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৭ঃ আদর্শ পরিবার ৩",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 107,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1r8IUAgt1mG8fANf1e5GAQCG99wWnWmof/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৮ঃ পরকীয়া",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 108,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1cqm0Uaf2JkMz_qsVDLt-VTMz4jfwp7pI/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-৯ঃ নেক সন্তান ০১",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 109,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1jb-Jf1lS8aOB3F4fbSDKXlC99GQ-1ekJ/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১০ঃ নেক সন্তান ০২",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 110,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1uOqu_iUwDnV0dHgBuut9YQyGZwb-BSID/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১১ঃ নেক সন্তান ৩",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 111,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1o3TeLFQU07c4rT4FB-QtlPh8CPwvJTee/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১২ঃ নেক সন্তান ৪",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 112,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1JUY0vC5cj8UEuHQ4UBTv5fJLk7s4d6gM/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১৩ঃ নেক সন্তান ৫",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 113,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1lHEMz8rh4OFi51mE9jdk22PJ4VKAEy21/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১৪ঃ নেক সন্তান ০৬",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
+            },
+            {
+                id: 114,
+                date: "সংগৃহীত",
+                duration: "অনির্ধারিত",
+                category: "halakah",
+                driveLink: "https://drive.google.com/file/d/1RpGNTMKseJLBzSZnwLUkHop5hvSZPAwr/view?usp=sharing",
+                content: {
+                    title: "মহিলাদের হালাকাহ-১৫ঃ ফরজে আইন-১",
+                    description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।",
+                    resources: []
+                },
+                quiz: []
             }
         ];
 
@@ -252,6 +445,7 @@
             footerText: "সর্বস্বত্ব সংরক্ষিত © ২০২৬ | মাসউদ আলিমী",
             tafsir: "তাফসির",
             seerat: "সীরাত",
+            halakah: "মহিলাদের হালাকাহ", // Added new category text
             all: "সব",
             noResults: "কোনো ক্লাস খুঁজে পাওয়া যায়নি।",
             takeQuiz: "কুইজ টেস্ট দিন",
@@ -286,9 +480,9 @@
             leaderboardTitle: "মেধাতালিকা",
             rank: "অবস্থান",
             name: "নাম",
-            score: "নম্বর",
-            time: "সময়",
-            submissionSerial: "জমার ক্রম", // CHANGED from জমার সিরিয়াল
+            score: "প্রাপ্ত নম্বর", 
+            time: "জমার সময়",   
+            submissionSerial: "জমার ক্রম", 
             viewLeaderboard: "মেধাতালিকা দেখুন"
         };
 
@@ -402,6 +596,7 @@
 
             let html = '';
             
+            // Header logic: Show header everywhere EXCEPT in active quiz mode/registration
             if (state.view !== 'quiz' && state.view !== 'quiz_registration') {
                 html += `<div class="sticky top-0 z-50 w-full flex flex-col">`;
                 html += renderHeader();
@@ -512,7 +707,7 @@
 
                 <div class="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-30 py-2 mb-8">
                     <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
-                        ${['all', 'tafsir', 'seerat'].map(cat => {
+                        ${['all', 'tafsir', 'seerat', 'halakah'].map(cat => {
                             const isActive = state.filter === cat;
                             const activeClass = state.darkMode ? 'bg-emerald-600 text-white' : 'bg-emerald-600 text-white shadow-glow';
                             const inactiveClass = state.darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-stone-100 border border-stone-200';
@@ -538,8 +733,19 @@
 
         function renderLectureCard(lecture) {
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
-            const catColor = lecture.category === 'tafsir' ? 'bg-emerald-500' : 'bg-amber-500';
-            const badgeBg = state.darkMode ? 'bg-slate-700 text-slate-300' : 'bg-stone-100 text-stone-600';
+            
+            // Dynamic Color Logic based on category
+            let catColor = 'bg-emerald-500';
+            let badgeBg = state.darkMode ? 'bg-slate-700 text-slate-300' : 'bg-stone-100 text-stone-600';
+            
+            if (lecture.category === 'tafsir') {
+                catColor = 'bg-emerald-500';
+            } else if (lecture.category === 'seerat') {
+                catColor = 'bg-amber-500';
+            } else if (lecture.category === 'halakah') {
+                catColor = 'bg-rose-500'; // New color for Halakah
+            }
+
             const titleColor = state.darkMode ? 'text-slate-100' : 'text-slate-800';
 
             return `
@@ -601,9 +807,10 @@
             const l = state.selectedLecture;
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
             const titleColor = state.darkMode ? 'text-emerald-100' : 'text-emerald-900';
-            const badgeClass = l.category === 'tafsir' 
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' 
-                : 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
+            
+            let badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
+            if (l.category === 'seerat') badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
+            else if (l.category === 'halakah') badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200';
             
             const playerBg = state.darkMode ? 'bg-slate-900' : 'bg-stone-50';
 
@@ -729,6 +936,7 @@
             `;
         }
 
+        // --- UPDATED RENDER QUIZ (Scrollable List Mode) ---
         function renderQuiz() {
             const qState = state.quiz;
             const quizData = qState.questions; 
@@ -736,10 +944,11 @@
             const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
 
-            // --- 1. REVIEW VIEW ---
+            // --- 1. REVIEW VIEW (Priority Check: If reviewing, show this first) ---
             if (qState.isReviewing) {
                  return `
                 <div class="min-h-screen ${bgClass} animate-fade-in pb-20">
+                    <!-- Sticky Header -->
                     <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800/95' : 'border-stone-200 bg-white/95'} backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-sm">
                         <button onclick="actions.exitReview()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-2">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span>
@@ -813,7 +1022,7 @@
                 `; 
             }
             
-            // --- 2. RESULT VIEW ---
+            // --- 2. RESULT VIEW (After Submission) ---
             if (qState.isFinished) {
                 const percentage = Math.round((qState.score / quizData.length) * 100);
                 let message = "", icon = "", colorClass = "";
@@ -834,6 +1043,7 @@
 
                 return `
                 <div class="min-h-screen ${bgClass} flex flex-col items-center justify-center p-6 animate-fade-in relative overflow-hidden">
+                    <!-- Background Decoration -->
                     <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                         <div class="absolute top-10 left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
                         <div class="absolute bottom-10 right-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl"></div>
@@ -841,11 +1051,13 @@
 
                     <div class="max-w-lg w-full ${state.darkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-white/90 border-white'} border backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 text-center relative z-10">
                         
+                        <!-- NEW: User Details on Score Card -->
                         <div class="mb-6 pb-6 border-b ${state.darkMode ? 'border-slate-600' : 'border-gray-200'}">
                             <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">${qState.userName}</h3>
                             <p class="text-sm opacity-70">পিতা/স্বামী: <span class="font-medium">${qState.userGuardian}</span></p>
                         </div>
                         
+                        <!-- Icon Circle with Pulse -->
                         <div class="relative inline-block mb-6">
                             <div class="absolute inset-0 bg-current opacity-20 rounded-full animate-ping ${colorClass}"></div>
                             <div class="w-24 h-24 rounded-full ${state.darkMode ? 'bg-slate-700' : 'bg-slate-50'} flex items-center justify-center shadow-inner relative z-10">
@@ -860,6 +1072,7 @@
                             <span class="text-3xl font-bold opacity-30">/ ${quizData.length}</span>
                         </div>
 
+                        <!-- Progress Bar -->
                         <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full mb-8 overflow-hidden">
                             <div class="h-full rounded-full transition-all duration-1000 ease-out ${percentage >= 50 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-rose-400 to-rose-600'}" style="width: ${percentage}%"></div>
                         </div>
@@ -869,6 +1082,7 @@
                         </div>
                         
                         <div class="space-y-3">
+                            <!-- Removed retry button and replaced with View Leaderboard -->
                             <button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                                 <i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}
                             </button>
@@ -877,7 +1091,8 @@
                                 <button onclick="actions.exitQuiz()" class="py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2">
                                     <i data-lucide="home" class="w-4 h-4"></i> ${TEXTS.back}
                                 </button>
-                                <button onclick="actions.reviewQuizAnswers()" class="py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2">
+                                <!-- Made Answer Review button more prominent -->
+                                <button onclick="actions.reviewQuizAnswers()" class="py-3 rounded-xl bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-900 dark:hover:bg-slate-600 font-bold transition flex items-center justify-center gap-2 shadow-md">
                                     <i data-lucide="list-checks" class="w-4 h-4"></i> উত্তর দেখুন
                                 </button>
                             </div>
@@ -887,9 +1102,10 @@
                 `;
             }
 
-            // --- 3. QUIZ TAKING VIEW ---
+            // --- 3. QUIZ TAKING VIEW (Scrolling List) ---
             return `
             <div class="min-h-screen flex flex-col ${bgClass} animate-fade-in">
+                <!-- Header -->
                 <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800' : 'border-stone-200 bg-white'} flex items-center justify-between sticky top-0 z-20 shadow-sm">
                     <button onclick="actions.exitQuiz()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
@@ -901,6 +1117,7 @@
                     <div class="w-10"></div> 
                 </div>
 
+                <!-- Scrollable Question List -->
                 <div class="flex-1 p-4 md:p-8 max-w-3xl mx-auto w-full space-y-12 pb-40 md:pb-48">
                     ${quizData.map((q, qIdx) => {
                         const isMultiple = q.correctIndices && q.correctIndices.length > 0;
@@ -946,6 +1163,7 @@
                     }).join('<div class="w-full h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent my-10"></div>')}
                 </div>
 
+                <!-- Fixed Bottom Submit Bar -->
                 <div class="fixed bottom-0 left-0 right-0 p-4 ${state.darkMode ? 'bg-slate-900 bg-opacity-90' : 'bg-white bg-opacity-90'} backdrop-blur-md border-t ${state.darkMode ? 'border-slate-700' : 'border-stone-200'} z-20">
                     <div class="max-w-3xl mx-auto flex items-center justify-between">
                         <div class="flex flex-col">
@@ -992,11 +1210,11 @@
                                     <tr class="${state.darkMode ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-600 text-white'} uppercase text-base font-bold tracking-wider">
                                         <!-- Changed # to মেধাস্থান -->
                                         <th class="p-4 w-20 text-center">মেধাস্থান</th>
-                                        <th class="p-4">${TEXTS.name}</th>
+                                        <th class="p-4 text-center">${TEXTS.name}</th>
                                         <!-- Swapped Score and Submission Serial -->
                                         <th class="p-4 text-center">${TEXTS.score}</th>
                                         <th class="p-4 text-center">${TEXTS.submissionSerial}</th>
-                                        <th class="p-4 text-right hidden sm:table-cell">${TEXTS.time}</th>
+                                        <th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1036,11 +1254,11 @@
                                                 </span>
                                             </td>
                                             <td class="p-4 text-center align-middle">
-                                                <span class="font-bold text-base md:text-lg opacity-70">
+                                                <span class="font-bold text-base md:text-lg">
                                                     ${toBanglaDigit(user.submissionSerial || '-')}
                                                 </span>
                                             </td>
-                                            <td class="p-4 text-right align-middle text-sm opacity-60 hidden sm:table-cell">
+                                            <td class="p-4 text-center align-middle text-sm opacity-60 hidden sm:table-cell">
                                                 ${new Date(user.timestamp).toLocaleString('bn-BD', { 
                                                     year: 'numeric', 
                                                     month: 'long', 
