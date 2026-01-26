@@ -19,18 +19,12 @@
             theme: {
                 container: {
                     center: true,
-                    padding: {
-                        DEFAULT: '1rem',
-                        sm: '1.5rem',
-                        lg: '2rem',
-                        xl: '2.5rem',
-                        '2xl': '3rem',
-                    },
+                    padding: { DEFAULT: '1rem', sm: '1.5rem', lg: '2rem', xl: '2.5rem', '2xl': '3rem' },
                 },
                 extend: {
                     fontFamily: {
-                        sans: ['"Noto Sans Bengali"', '"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
-                        serif: ['ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
+                        sans: ['"Noto Sans Bengali"', '"Hind Siliguri"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        serif: ['ui-serif', 'Georgia', 'serif'],
                     },
                     colors: {
                         emerald: {
@@ -71,11 +65,11 @@
 
         // --- 2. DATA CONSTANTS & GOOGLE SHEET LOGIC ---
         
-        // Google Sheet JSON URL (Updated)
         const SHEET_JSON_URL = "https://docs.google.com/spreadsheets/d/15xgI5Q8rWWrjJEen7fQtGaULAFDPIpx5eL4I-74GnWY/gviz/tq?tqx=out:json&gid=0";
 
         let ALL_QUIZZES = [];
-        let QUIZ_TIME_LIMIT = 3600; // Default 1 hour fallback
+        let QUIZ_TIME_LIMIT = 3600; 
+        let QUIZ_PASSWORD = ""; // Variable to store password
 
         // Fetch Function
         async function fetchQuizData() {
@@ -89,23 +83,23 @@
                 
                 const rows = jsonData.table.rows;
 
-                // 2. Set Timer from Column J (Index 9)
-                // We check the first row of data (which is Row 2 in Sheet)
-                if (rows.length > 0 && rows[0].c[9] && rows[0].c[9].v) {
-                     const timeVal = Number(rows[0].c[9].v);
-                     if (!isNaN(timeVal)) {
-                         QUIZ_TIME_LIMIT = timeVal;
-                     }
+                // 2. Fetch Config from Row 2 (Index 0 in data rows)
+                if (rows.length > 0) {
+                    // Timer (Column J = Index 9)
+                    if (rows[0].c[9] && rows[0].c[9].v) {
+                         const timeVal = Number(rows[0].c[9].v);
+                         if (!isNaN(timeVal)) QUIZ_TIME_LIMIT = timeVal;
+                    }
+                    
+                    // Password (Column K = Index 10) - NEW ADDITION
+                    if (rows[0].c[10] && rows[0].c[10].v) {
+                        QUIZ_PASSWORD = String(rows[0].c[10].v).trim();
+                    }
                 }
 
                 // 3. Loop and Create Questions
                 ALL_QUIZZES = rows.map(row => {
                     const cells = row.c;
-                    
-                    // Column Mapping:
-                    // c[0] = Question
-                    // c[1] to c[7] = Option 1 to Option 7
-                    // c[8] = Correct Answer
                     
                     // --- Dynamic Options Handling (Up to 7) ---
                     let options = [];
@@ -120,12 +114,8 @@
                     let correctIndices = [];
                     
                     if (correctVal.includes(",")) {
-                        // Multiple answers (e.g. "1,3")
-                        correctIndices = correctVal.split(',')
-                                            .map(s => parseInt(s.trim()) - 1)
-                                            .filter(n => !isNaN(n));
+                        correctIndices = correctVal.split(',').map(s => parseInt(s.trim()) - 1).filter(n => !isNaN(n));
                     } else {
-                        // Single answer
                         const val = parseInt(correctVal);
                         if (!isNaN(val)) correctIndices = [val - 1];
                     }
@@ -135,19 +125,18 @@
                         options: options,
                         correctIndices: correctIndices,
                         correctIndex: correctIndices[0],
-                        note: "", // No notes as requested
+                        note: "", 
                         type: correctIndices.length > 1 ? "multiple" : "single"
                     };
                 });
 
-                console.log(`Loaded ${ALL_QUIZZES.length} questions. Time limit: ${QUIZ_TIME_LIMIT}s`);
+                console.log(`Loaded ${ALL_QUIZZES.length} questions. Time: ${QUIZ_TIME_LIMIT}s, Password Protected: ${QUIZ_PASSWORD ? 'Yes' : 'No'}`);
 
             } catch (error) {
                 console.error("Error fetching Google Sheet Data:", error);
             }
         }
 
-        // Call fetch immediately
         fetchQuizData();
 
         const COURSE_DATA = [
@@ -433,21 +422,15 @@
             correct: "সঠিক উত্তর!",
             wrong: "ভুল উত্তর!",
             correctAnswerIs: "সঠিক উত্তরটি হলো:",
-            
-            // Global Quiz Promo Texts
             globalQuizTitle: "সীরাত কুইজ পরীক্ষা",
             globalQuizDesc: "আপনার সীরাত জ্ঞান যাচাই করুন এবং নিজেকে প্রস্তুত করুন।",
             startGlobalQuiz: "কুইজ শুরু করুন",
-            
-            // Registration
             start: "শুরু করুন",
             enterDetails: "আপনার পরিচয় দিন",
             nameLabel: "আপনার নাম",
             guardianLabel: "পিতা/স্বামীর নাম",
             namePlaceholder: "আপনার পূর্ণ নাম লিখুন...",
             guardianPlaceholder: "নাম লিখুন...",
-            
-            // Leaderboard
             leaderboardTitle: "মেধাতালিকা",
             rank: "অবস্থান",
             name: "নাম",
@@ -486,12 +469,11 @@
                 startTime: null,
                 endTime: null,
                 timerInterval: null,
-                timeLeft: 3600 // will be updated from Sheet
+                timeLeft: 3600
             },
             leaderboardData: []
         };
 
-        // --- 3. GLOBAL VARIABLES ---
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDwR1TblS5HPAzJEkT7TG2RGmjGRBIMj9E",
             authDomain: "quiz-d9e52.firebaseapp.com",
@@ -505,7 +487,6 @@
         let db, auth, currentUser;
         let unsubscribeLeaderboard = null;
 
-        // --- 4. INIT FIREBASE ---
         try {
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
@@ -536,7 +517,6 @@
             console.warn("Firebase not initialized (Offline Mode)", e);
         }
 
-        // --- 5. UTILITIES ---
         const toBanglaDigit = (num) => {
             if (num === undefined || num === null) return '';
             return num.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
@@ -560,7 +540,6 @@
 
         const MosqueIcon = () => `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M10 6h4"/><path d="M12 6c3.5 0 6 3 6 7h-12c0-4 2.5-7 6-7Z"/><path d="M18 13v8"/><path d="M6 13v8"/><path d="M6 21h12"/><path d="M10 21v-4a2 2 0 0 1 4 0v4"/></svg>`;
 
-        // --- 6. RENDER FUNCTIONS ---
         const app = document.getElementById('app');
         const body = document.body;
 
@@ -576,7 +555,6 @@
             }
 
             let html = '';
-            // Header logic: Show header everywhere EXCEPT in active quiz mode/registration
             if (state.view !== 'quiz' && state.view !== 'quiz_registration') {
                 html += `<div class="sticky top-0 z-50 w-full flex flex-col">`;
                 html += renderHeader();
@@ -713,7 +691,6 @@
         function renderLectureCard(lecture) {
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
             
-            // Dynamic Color Logic based on category
             let catColor = 'bg-emerald-500';
             let badgeBg = state.darkMode ? 'bg-slate-700 text-slate-300' : 'bg-stone-100 text-stone-600';
             if (lecture.category === 'tafsir') {
@@ -721,7 +698,7 @@
             } else if (lecture.category === 'seerat') {
                 catColor = 'bg-amber-500';
             } else if (lecture.category === 'halakah') {
-                catColor = 'bg-rose-500'; // New color for Halakah
+                catColor = 'bg-rose-500'; 
             }
 
             const titleColor = state.darkMode ? 'text-slate-100' : 'text-slate-800';
@@ -904,7 +881,6 @@
             `;
         }
 
-        // --- UPDATED RENDER QUIZ (Dynamic Options) ---
         function renderQuiz() {
             const qState = state.quiz;
             const quizData = qState.questions; 
@@ -912,7 +888,6 @@
             const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
             const cardBg = state.darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-stone-200';
 
-            // --- 1. REVIEW VIEW ---
             if (qState.isReviewing) {
                  return `
                 <div class="min-h-screen ${bgClass} animate-fade-in pb-20">
@@ -986,7 +961,6 @@
                 `;
             }
             
-            // --- 2. RESULT VIEW ---
             if (qState.isFinished) {
                 const percentage = Math.round((qState.score / quizData.length) * 100);
                 let message = "", icon = "", colorClass = "";
@@ -1061,7 +1035,6 @@
                 `;
             }
 
-            // --- 3. QUIZ TAKING VIEW (Scrolling List) ---
             return `
             <div class="min-h-screen flex flex-col ${bgClass} animate-fade-in">
                 <div class="p-4 md:px-8 border-b ${state.darkMode ? 'border-slate-700 bg-slate-800' : 'border-stone-200 bg-white'} flex items-center justify-between sticky top-0 z-20 shadow-sm">
@@ -1145,7 +1118,6 @@
             `;
         }
 
-        // --- RENDER LEADERBOARD ---
         function renderLeaderboard() {
             const bgClass = state.darkMode ? 'bg-slate-900 text-white' : 'bg-stone-50 text-stone-900';
             const rowOdd = state.darkMode ? 'bg-slate-800/50' : 'bg-gray-50';
@@ -1258,7 +1230,6 @@
             `;
         }
 
-        // --- 7. ACTIONS (Exposed to Window) ---
         const actions = {
             toggleTheme: () => { state.darkMode = !state.darkMode; render(); },
             goHome: () => { 
@@ -1269,15 +1240,22 @@
             setSearch: (val) => { state.search = val; if(state.view === 'home') render(); },
             selectLecture: (id) => { state.selectedLecture = COURSE_DATA.find(l => l.id === id); state.view = 'detail'; state.playbackRate = 1.0; window.scrollTo(0,0); render(); },
             
-            // QUIZ ACTIONS
             startQuiz: async () => { 
-                // Ensure data is loaded
                 if (ALL_QUIZZES.length === 0) {
                      await fetchQuizData();
                      if (ALL_QUIZZES.length === 0) {
                          alert("কুইজ লোড করা যায়নি। ইন্টারনেট সংযোগ চেক করুন।");
                          return;
                      }
+                }
+
+                // PASSWORD CHECK Logic
+                if (QUIZ_PASSWORD && QUIZ_PASSWORD !== "") {
+                    const userPass = prompt("এই কুইজটি লক করা। দয়া করে পাসওয়ার্ড দিন:");
+                    if (userPass !== QUIZ_PASSWORD) {
+                        alert("ভুল পাসওয়ার্ড! কুইজ দিতে ওস্তাদজীর সাথে যোগাযোগ করুন।");
+                        return;
+                    }
                 }
 
                 state.quiz = {
@@ -1293,7 +1271,7 @@
                     userAnswers: {},
                     userName: "",
                     userGuardian: "",
-                    timeLeft: QUIZ_TIME_LIMIT // Set dynamic time from Sheet
+                    timeLeft: QUIZ_TIME_LIMIT 
                 };
                 state.view = 'quiz_registration'; 
                 render(); 
@@ -1312,10 +1290,8 @@
                 state.quiz.userName = name;
                 state.quiz.userGuardian = guardian;
 
-                // Load questions (Shuffle can be re-enabled here if needed)
                 state.quiz.questions = [...ALL_QUIZZES];
                 
-                // Start Timer
                 state.quiz.startTime = Date.now();
                 state.quiz.timerInterval = setInterval(() => {
                     if (state.quiz.timeLeft > 0) {
@@ -1323,9 +1299,8 @@
                         const timerEl = document.getElementById('quiz-timer');
                         if (timerEl) timerEl.innerText = formatTime(state.quiz.timeLeft);
                     } else {
-                        // Time Up
                         clearInterval(state.quiz.timerInterval);
-                        actions.submitAllAnswers(); // Auto submit
+                        actions.submitAllAnswers(); 
                     }
                 }, 1000);
                 state.view = 'quiz';
@@ -1371,7 +1346,6 @@
                 state.quiz.isFinished = true;
                 state.quiz.isReviewing = false; 
                 
-                // SAVE SCORE TO FIRESTORE
                 if (currentUser) {
                     try {
                         addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), {
@@ -1410,7 +1384,6 @@
                 state.view = 'home'; render(); 
             },
             
-            // LEADERBOARD ACTIONS
             viewLeaderboard: () => {
                 state.view = 'leaderboard';
                 actions.fetchLeaderboardData();
@@ -1463,7 +1436,6 @@
         window.actions = actions;
         function attachListeners() { }
 
-        // Initialize
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             state.darkMode = true;
         }
