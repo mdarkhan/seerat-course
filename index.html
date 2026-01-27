@@ -31,6 +31,24 @@
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-33.3333%); } }
         .animate-marquee { display: flex; width: max-content; animation: marquee 12s linear infinite; }
         .animate-marquee:hover { animation-play-state: paused; }
+        
+        /* New Animation for Quiz Card */
+        @keyframes gradient-xy {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-xy {
+            background-size: 200% 200%;
+            animation: gradient-xy 6s ease infinite;
+        }
+        @keyframes shine {
+            from { transform: translateX(-100%) skewX(-15deg); }
+            to { transform: translateX(200%) skewX(-15deg); }
+        }
+        .animate-shine {
+            animation: shine 3s infinite linear;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col antialiased">
@@ -450,14 +468,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-6 text-white mb-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-2 text-emerald-200 text-sm font-bold uppercase tracking-wider"><i data-lucide="trophy" class="w-4 h-4"></i> কুইজ প্রতিযোগিতা</div>
+                <div class="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-[length:200%_auto] animate-gradient-xy rounded-xl p-6 text-white mb-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-white/5 skew-x-[-15deg] w-1/4 animate-shine blur-lg opacity-30"></div>
+                    <div class="space-y-2 relative z-10">
+                        <div class="flex items-center gap-2 text-emerald-100 text-sm font-bold uppercase tracking-wider"><i data-lucide="trophy" class="w-4 h-4"></i> কুইজ প্রতিযোগিতা</div>
                         <h3 class="text-2xl font-bold">${TEXTS.globalQuizTitle}</h3>
                         <p class="opacity-90 max-w-lg">${scheduleNote ? `<span class="inline-block bg-white/20 px-2 py-0.5 rounded text-sm font-bold mt-1">${scheduleNote}</span>` : TEXTS.globalQuizDesc}</p>
                     </div>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <button onclick="actions.viewLeaderboard()" class="bg-teal-900 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
+                    <div class="flex flex-col sm:flex-row gap-3 relative z-10">
+                        <button onclick="actions.viewLeaderboard()" class="bg-teal-900/80 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none backdrop-blur-sm"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
                         <button id="quiz-start-btn" onclick="${btnAction}" ${btnDisabled ? 'disabled' : ''} class="px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap ${btnClass}"><i data-lucide="${btnIcon}" class="w-5 h-5"></i> ${btnText}</button>
                     </div>
                 </div>
@@ -666,7 +685,7 @@
                         const uAns = userAnswers[qIdx] || [];
                         return `
                         <div class="animate-fade-in" style="animation-delay: ${qIdx * 0.05}s">
-                            <div class="flex items-start gap-4 mb-6"><span class="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-sm shadow-md">${toBanglaDigit(qIdx + 1)}</span><div class="space-y-1"><h3 class="text-xl font-bold leading-relaxed">${q.question}</h3>${isMultiple ? '<span class="inline-block text-[10px] font-bold bg-amber-100 dark:bg-amber-900 dark:bg-opacity-40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded uppercase tracking-tighter">একাধিক উত্তর হতে পারে</span>' : ''}</div></div>
+                            <div class="flex items-start gap-4 mb-6"><span class="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-sm shadow-md">${toBanglaDigit(qIdx + 1)}</span><div class="space-y-1"><h3 class="text-xl font-bold leading-relaxed">${q.question}</h3></div></div>
                             <div class="grid grid-cols-1 gap-3 pl-0 md:pl-12">
                                 ${q.options.map((option, optIdx) => {
                                     const isSelected = uAns.includes(optIdx);
