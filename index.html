@@ -347,8 +347,12 @@
             }
             
             // --- Hijri Date (Adjustment for Bangladesh Timezone) ---
+            // Fix: Adjust date by -1 day for Bangladesh moon sighting relative to standard Umm al-Qura
+            const hijriDateAdjusted = new Date(now);
+            hijriDateAdjusted.setDate(now.getDate() - 1);
+
             // using 'en-US' for raw numbers, specific calendar, and BD timezone
-            const hParts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Asia/Dhaka' }).formatToParts(now);
+            const hParts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Asia/Dhaka' }).formatToParts(hijriDateAdjusted);
             const hDayEn = hParts.find(p => p.type === 'day')?.value;
             const hMonthIndex = parseInt(hParts.find(p => p.type === 'month')?.value) - 1; 
             const hYearEn = hParts.find(p => p.type === 'year')?.value.replace(/[^0-9]/g, '');
@@ -926,7 +930,7 @@
                     <div class="rounded-2xl overflow-hidden border shadow-lg border-stone-200 dark:border-slate-700">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
-                                <thead><tr class="uppercase text-base font-bold tracking-wider bg-emerald-600 text-white dark:bg-slate-800 dark:text-emerald-400"><th class="p-4 w-20 text-center">মেধাস্থান</th><th class="p-4 text-center">${TEXTS.name}</th><th class="p-4 text-center">${TEXTS.score}</th><th class="p-4 text-center">${TEXTS.submissionSerial}</th><th class="p-4 text-center">${TEXTS.timeTaken}</th><th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th></tr></thead>
+                                <thead><tr class="uppercase text-base font-bold tracking-wider bg-emerald-600 text-white dark:bg-slate-800 dark:text-emerald-400"><th class="p-4 w-20 text-center">মেধাস্থান</th><th class="p-4 text-center">${TEXTS.name}</th><th class="p-4 text-center">${TEXTS.score}</th><th class="p-4 text-center">${TEXTS.timeTaken}</th><th class="p-4 text-center">${TEXTS.submissionSerial}</th><th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th></tr></thead>
                                 <tbody>
                                     ${data.length > 0 ? data.map((user, idx) => {
                                         let rankDisplay = `<span class="font-bold opacity-50 text-xl">${toBanglaDigit(idx + 1)}</span>`;
@@ -944,7 +948,7 @@
                                         else if (idx === 4) rowClass += " bg-purple-50/30 dark:bg-purple-900/10";
 
                                         const dateObj = new Date(user.timestamp);
-                                        return `<tr class="${rowClass}"><td class="p-4 text-center align-middle">${rankDisplay}</td><td class="p-4 align-middle"><div class="font-bold text-base md:text-lg">${user.name}</div><div class="text-xs opacity-60">${user.guardian || '-'}</div></td><td class="p-4 text-center align-middle"><span class="inline-block px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-extrabold text-2xl shadow-sm">${toBanglaDigit(user.score)}</span></td><td class="p-4 text-center align-middle"><span class="font-bold text-base md:text-lg opacity-70">${toBanglaDigit(user.submissionSerial || '-')}</span></td><td class="p-4 text-center align-middle font-medium text-emerald-600">${user.timeTaken ? `${toBanglaDigit(Math.floor(user.timeTaken/60))} মি ${toBanglaDigit(user.timeTaken%60)} সে` : '-'}</td><td class="p-4 text-center align-middle hidden sm:table-cell"><div class="flex flex-col items-center text-stone-700 dark:text-stone-200"><span class="font-medium text-base">${dateObj.toLocaleString('bn-BD', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-')}</span><span class="text-sm font-medium opacity-90">${dateObj.toLocaleString('bn-BD', {hour:'numeric',minute:'numeric',second:'numeric',hour12:true})}</span></div></td></tr>`;
+                                        return `<tr class="${rowClass}"><td class="p-4 text-center align-middle">${rankDisplay}</td><td class="p-4 align-middle"><div class="font-bold text-base md:text-lg">${user.name}</div><div class="text-xs opacity-60">${user.guardian || '-'}</div></td><td class="p-4 text-center align-middle"><span class="inline-block px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-extrabold text-2xl shadow-sm">${toBanglaDigit(user.score)}</span></td><td class="p-4 text-center align-middle font-medium text-emerald-600">${user.timeTaken ? `${toBanglaDigit(Math.floor(user.timeTaken/60))} মি ${toBanglaDigit(user.timeTaken%60)} সে` : '-'}</td><td class="p-4 text-center align-middle"><span class="font-bold text-base md:text-lg opacity-70">${toBanglaDigit(user.submissionSerial || '-')}</span></td><td class="p-4 text-center align-middle hidden sm:table-cell"><div class="flex flex-col items-center text-stone-700 dark:text-stone-200"><span class="font-medium text-base">${dateObj.toLocaleString('bn-BD', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-')}</span><span class="text-sm font-medium opacity-90">${dateObj.toLocaleString('bn-BD', {hour:'numeric',minute:'numeric',second:'numeric',hour12:true})}</span></div></td></tr>`;
                                     }).join('') : `<tr><td colspan="6" class="p-10 text-center opacity-50">এখনো কোনো ফলাফল জমা পড়েনি।</td></tr>`}
                                 </tbody>
                             </table>
