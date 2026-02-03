@@ -49,6 +49,20 @@
         .animate-shine {
             animation: shine 3s infinite linear;
         }
+        /* 3D Button Utility */
+        .btn-3d {
+            transition: all 0.1s;
+            transform: translateY(0);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: none !important;
+        }
+        .btn-3d:disabled {
+            transform: none;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col antialiased">
@@ -110,7 +124,7 @@
         const GLOBAL_NOTICE = latestLectureWithSyllabus ? latestLectureWithSyllabus.content.syllabus : "আসসালামু আলাইকুম।";
 
         const state = {
-            darkMode: false, view: 'home', selectedLecture: null, filter: 'seerat', search: '', playerMode: 'embed', playbackRate: 1.0, leaderboardData: [],
+            darkMode: false, view: 'home', selectedLecture: null, filter: 'seerat', search: '', playerMode: 'embed', playbackRate: 1.0, leaderboardData: [], showWaitModal: false,
             quiz: { active: false, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: 3600 }
         };
 
@@ -240,13 +254,14 @@
                     const cellS = configRow.c[18]; // End Date
                     const cellT = configRow.c[19]; // End Time
                     
-                    // --- NEW: Parse Quiz Name from Sheet U2 (Row 2, Col 21 [Index 20]) ---
-                    // Using configRow which is robustly detected above
+                    // Parse Quiz Name from Sheet U2 (Row 2, Col 21 [Index 20])
                     if (configRow.c[20]?.v) {
                         QUIZ_NAME_FROM_SHEET = String(configRow.c[20].v).trim();
                     } else {
                         QUIZ_NAME_FROM_SHEET = "সীরাত"; // Default
                     }
+                    
+                    // --- REMOVED: Leaderboard Password Parsing ---
 
                     if (cellQ && cellR) {
                         try {
@@ -388,6 +403,9 @@
             document.documentElement.classList.toggle('dark', state.darkMode);
             const app = document.getElementById('app');
             let html = '';
+            if (state.showWaitModal) {
+                html += renderWaitModal();
+            }
             if (!['quiz', 'quiz_registration', 'quiz_password'].includes(state.view)) {
                 html += `<div class="sticky top-0 z-50 w-full flex flex-col">${renderHeader()}${state.view === 'home' ? renderNoticeBar() : ''}</div>`;
             }
@@ -418,6 +436,7 @@
             if (quizCountdownInterval) clearInterval(quizCountdownInterval);
             
             const btn = document.getElementById('quiz-start-btn');
+            const countdownDisplay = document.getElementById('quiz-countdown-display');
             const noteEl = document.getElementById('quiz-schedule-text');
             if (!btn) return;
             
@@ -430,14 +449,16 @@
                  const saved = getSavedQuizState();
                  if (saved && saved.expiryTime > Date.now()) {
                      const diff = saved.expiryTime - Date.now();
-                     btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.resumeQuiz} (${formatCountdown(diff)})`;
+                     btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.resumeQuiz}`;
+                     if (countdownDisplay) countdownDisplay.innerText = `শেষ হতে বাকি: ${formatCountdown(diff)}`;
                      btn.onclick = () => window.actions.resumeQuiz();
-                     btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-emerald-600 text-white hover:bg-emerald-700 hover:scale-105 animate-pulse border-2 border-emerald-500 shadow-emerald-500/20";
+                     btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-emerald-600 text-white hover:bg-emerald-700 btn-3d";
                  } else {
                      btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.startGlobalQuiz}`;
+                     if (countdownDisplay) countdownDisplay.innerText = "";
                      btn.onclick = () => window.actions.startQuiz();
                      btn.disabled = false;
-                     btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-white hover:scale-105";
+                     btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-white btn-3d border border-emerald-100";
                  }
                  lucide.createIcons();
                  
@@ -449,13 +470,13 @@
                          if (diff <= 0) {
                              // Expired
                              btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.startGlobalQuiz}`;
+                             if (countdownDisplay) countdownDisplay.innerText = "";
                              btn.onclick = () => window.actions.startQuiz();
-                             btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-white hover:scale-105";
+                             btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-white btn-3d border border-emerald-100";
                              clearInterval(quizCountdownInterval);
                          } else {
-                             btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.resumeQuiz} (${formatCountdown(diff)})`;
+                             if (countdownDisplay) countdownDisplay.innerText = `শেষ হতে বাকি: ${formatCountdown(diff)}`;
                          }
-                         lucide.createIcons();
                      }, 1000);
                  }
                  
@@ -469,11 +490,12 @@
                 // 1. Resume Logic (Top Priority)
                 if (saved && saved.expiryTime > now) {
                     const diff = saved.expiryTime - now;
-                    btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.resumeQuiz} (${formatCountdown(diff)})`;
+                    btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> ${TEXTS.resumeQuiz}`;
+                    if (countdownDisplay) countdownDisplay.innerText = `শেষ হতে বাকি: ${formatCountdown(diff)}`;
                     btn.disabled = false;
                     btn.onclick = () => window.actions.resumeQuiz();
                     // Resume Button Style: White BG, Green Text, distinct border
-                    btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-emerald-50 hover:scale-105 animate-pulse border-2 border-emerald-500 shadow-emerald-500/20";
+                    btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-emerald-50 btn-3d border-2 border-emerald-500 shadow-emerald-500/20";
                     lucide.createIcons();
                     return;
                 }
@@ -491,17 +513,21 @@
                 // Before Start
                 if (now < GLOBAL_START_TIME) {
                     const timeToStart = GLOBAL_START_TIME - now;
-                    btn.innerHTML = `<i data-lucide="clock" class="w-5 h-5"></i> ${TEXTS.quizNotStarted} ${formatCountdown(timeToStart)}`; // Corrected: removed "শুরু করুন:"
+                    btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> অপেক্ষা করুন`; 
+                    if (countdownDisplay) countdownDisplay.innerText = `শুরু হতে বাকি: ${formatCountdown(timeToStart)}`;
                     btn.disabled = true;
-                    btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-emerald-800 text-white cursor-not-allowed border border-emerald-700 w-full md:w-64";
+                    // Yellow button with black text as requested
+                    btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-yellow-400 text-stone-900 border-yellow-500 btn-3d w-full md:w-64 cursor-not-allowed opacity-90";
                 } 
                 // After Start
                 else {
                     // Check End Time if exists (Hard Stop or Entry Stop)
                     if (GLOBAL_END_TIME && now >= GLOBAL_END_TIME) {
                         btn.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5"></i> ${TEXTS.quizEnded}`;
+                        if (countdownDisplay) countdownDisplay.innerText = "";
                         btn.disabled = true;
-                        btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-gray-200 text-gray-500 cursor-not-allowed grayscale border border-gray-300";
+                        // Red background, white text for ended state
+                        btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-red-600 text-white cursor-not-allowed border border-red-700 opacity-90";
                         
                         // Update Schedule Note Text to Telegram Link
                         if (noteEl) {
@@ -512,16 +538,17 @@
                     } else {
                         // Running Phase
                         // If End Time exists, show countdown to end on button
-                        let label = "শুরু করুন"; // Shortened Default
                         if (GLOBAL_END_TIME) {
                             const timeToEnd = GLOBAL_END_TIME - now;
-                            label += `ঃ ${formatCountdown(timeToEnd)}`; // Corrected format "শুরু করুনঃ [Countdown]"
+                            if (countdownDisplay) countdownDisplay.innerText = `শেষ হতে বাকি: ${formatCountdown(timeToEnd)}`;
+                        } else {
+                            if (countdownDisplay) countdownDisplay.innerText = "";
                         }
                         
-                        btn.innerHTML = `<i data-lucide="log-in" class="w-5 h-5"></i> ${label}`;
+                        btn.innerHTML = `<i data-lucide="play-circle" class="w-5 h-5"></i> পরীক্ষা শুরু করুন`;
                         btn.disabled = false;
                         btn.onclick = () => window.actions.startQuiz();
-                        btn.className = "px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-emerald-50 hover:scale-105 animate-pulse border border-emerald-100";
+                        btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-emerald-50 btn-3d border border-emerald-100";
                         
                         // --- LIVE NOTE UPDATE FOR SCENARIO 2 ---
                         if (noteEl) {
@@ -572,59 +599,13 @@
             const filtered = COURSE_DATA.filter(l => (state.filter === 'all' || l.category === state.filter) && (l.content.title.toLowerCase().includes(state.search.toLowerCase()) || l.content.description.toLowerCase().includes(state.search.toLowerCase())));
             const savedState = getSavedQuizState();
             
-            // --- DYNAMIC BUTTON LOGIC (Initial State) ---
-            // NOTE: The actual button text/state is updated live by handleQuizCountdown()
-            // We just need to set the scheduleNote correctly here.
-            
-            let btnAction = "actions.startQuiz()";
-            let btnText = TEXTS.startGlobalQuiz;
-            let btnIcon = "play-circle";
-            let btnDisabled = false;
-            let btnClass = "bg-white text-emerald-700 hover:bg-white hover:scale-105";
+            // Initial placeholders, will be updated by handleQuizCountdown
             let scheduleNote = ""; 
-
-            const now = Date.now();
-
-            if (savedState) {
-                // Resume logic handled by handleQuizCountdown
-                btnText = TEXTS.resumeQuiz; // Placeholder
-            } else if (GLOBAL_START_TIME) {
-                // Determine Scenario
-                const isScenario2 = (QUIZ_TIME_LIMIT > 0 && GLOBAL_END_TIME);
-                const isScenario3 = (!QUIZ_TIME_LIMIT && GLOBAL_END_TIME);
-                
-                // Base Schedule Note (Future)
+            if (GLOBAL_START_TIME) {
                 const d = new Date(GLOBAL_START_TIME);
                 const datePart = d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' });
                 const timePart = d.toLocaleString('bn-BD', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'Asia/Dhaka' });
                 scheduleNote = `পরবর্তী কুইজ: ${datePart} ${timePart}`;
-
-                if (now >= GLOBAL_START_TIME) {
-                    if (GLOBAL_END_TIME && now < GLOBAL_END_TIME) {
-                        // Running Phase
-                        if (isScenario2) {
-                            // Scenario 2: Show End Time in note (Shortened for Mobile)
-                            const e = new Date(GLOBAL_END_TIME);
-                            const eTime = e.toLocaleString('bn-BD', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'Asia/Dhaka' });
-                            const eDate = e.toLocaleString('bn-BD', { day: 'numeric', month: 'long', timeZone: 'Asia/Dhaka' });
-                            scheduleNote = `কুইজ চলছে! শেষ সময়: ${eDate} ${eTime}`; // Using 'সময়' per request
-                        } else if (isScenario3) {
-                            // Scenario 3: Just "Quiz Running"
-                            scheduleNote = TEXTS.quizRunning; // "কুইজ চলছে"
-                        } else {
-                             // Default running (Scenario 1 active)
-                             scheduleNote = TEXTS.quizRunning;
-                        }
-                    } else if (GLOBAL_END_TIME && now >= GLOBAL_END_TIME) {
-                        // Handle initial state for ended quiz
-                        scheduleNote = `পরবর্তী কুইজের জন্য <a href="https://t.me/seerat2026" target="_blank" class="inline-flex items-center gap-1 font-bold underline hover:text-emerald-200 transition-colors">${SVGS.telegram} টেলিগ্রাম</a> গ্রুপে চোখ রাখুন`;
-                    } else {
-                        // Started, no end time
-                        scheduleNote = TEXTS.quizRunning;
-                    }
-                }
-                
-                btnText = "লোড হচ্ছে..."; // Initial text
             }
 
             return `
@@ -650,9 +631,16 @@
                         </h3>
                         <p class="opacity-90 max-w-lg">${scheduleNote ? `<span id="quiz-schedule-text" class="inline-block bg-white/20 px-2 py-0.5 rounded text-sm font-bold mt-1">${scheduleNote}</span>` : TEXTS.globalQuizDesc}</p>
                     </div>
-                    <div class="flex flex-col sm:flex-row gap-3 relative z-10">
-                        <button onclick="actions.viewLeaderboard()" class="bg-teal-900/80 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none backdrop-blur-sm"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
-                        <button id="quiz-start-btn" onclick="${btnAction}" ${btnDisabled ? 'disabled' : ''} class="px-8 py-3 rounded-full font-bold transition-all shadow-xl flex items-center justify-center gap-2 whitespace-nowrap ${btnClass}"><i data-lucide="${btnIcon}" class="w-5 h-5"></i> ${btnText}</button>
+                    <div class="flex flex-col sm:flex-row gap-3 relative z-10 items-center">
+                        <button onclick="actions.viewLeaderboard()" class="bg-teal-900/80 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none backdrop-blur-sm btn-3d"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
+                        <button onclick="actions.viewAnswerKey()" class="bg-teal-900/80 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none backdrop-blur-sm btn-3d"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
+                        
+                        <div class="flex flex-col items-center gap-1">
+                            <div id="quiz-countdown-display" class="text-xs font-bold text-yellow-200 animate-pulse tracking-wide min-h-[16px]"></div>
+                            <button id="quiz-start-btn" class="px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-white btn-3d border border-emerald-100">
+                                <i data-lucide="loader" class="w-5 h-5 animate-spin"></i> লোড হচ্ছে...
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-30 py-2 mb-8">
@@ -767,6 +755,32 @@
                 </div>
             </div>`;
 
+        // --- NEW: Time Restriction Wait Modal ---
+        const renderWaitModal = () => {
+            const endTimeString = GLOBAL_END_TIME ? new Date(GLOBAL_END_TIME).toLocaleString('bn-BD', {
+                month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'Asia/Dhaka'
+            }) : 'অনির্ধারিত';
+
+            return `
+            <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-stone-200 dark:border-slate-700 relative scale-100 transition-transform">
+                    <button onclick="actions.closeWaitModal()" class="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-100 dark:hover:bg-slate-700 transition"><i data-lucide="x" class="w-5 h-5 opacity-50"></i></button>
+                    <div class="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                        <i data-lucide="hourglass" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-stone-800 dark:text-white">অপেক্ষা করুন</h3>
+                    <p class="text-stone-600 dark:text-slate-300 mb-6 text-sm leading-relaxed">কুইজ চলাকালীন সময়ে ফলাফল বা উত্তর দেখা যাবে না। দয়া করে কুইজের সময় শেষ হওয়া পর্যন্ত অপেক্ষা করুন।</p>
+                    
+                    <div class="bg-stone-50 dark:bg-slate-700/30 border border-stone-100 dark:border-slate-700 rounded-xl p-4 mb-6">
+                         <span class="text-base font-bold uppercase tracking-widest opacity-70 block mb-1">কুইজ শেষ হওয়ার সময়</span>
+                         <span class="text-xl md:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">${endTimeString}</span>
+                    </div>
+
+                    <button onclick="actions.closeWaitModal()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg transition-all active:scale-95">ঠিক আছে</button>
+                </div>
+            </div>`;
+        };
+
         const renderQuizRegistration = () => `
             <div class="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in bg-stone-50 text-stone-900 dark:bg-slate-900 dark:text-white">
                 <div class="max-w-md w-full rounded-2xl shadow-xl overflow-hidden border p-8 relative bg-white border-stone-200 dark:bg-slate-800 dark:border-slate-700">
@@ -875,8 +889,8 @@
                         <div class="p-4 rounded-xl mb-8 bg-slate-100 dark:bg-slate-700/50"><p class="text-lg font-medium leading-relaxed">"${msg}"</p></div>
                         <div class="flex flex-col gap-3 w-full">
                             <button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
-                            <div class="grid grid-cols-2 gap-3 mt-2">
-                                <button onclick="actions.reviewQuizAnswers()" class="py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="list-checks" class="w-5 h-5"></i> উত্তর দেখুন</button>
+                            <div class="flex flex-col gap-3 mt-2">
+                                <button onclick="actions.viewAnswerKey()" class="py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
                                 <button onclick="actions.goHome()" class="py-3.5 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2"><i data-lucide="home" class="w-5 h-5"></i> ${TEXTS.goHome}</button>
                             </div>
                         </div>
@@ -1038,15 +1052,87 @@
                 });
                 state.quiz.score = score; state.quiz.isFinished = true; state.quiz.isReviewing = false;
                 localStorage.removeItem('seerat_quiz_state');
+                
+                // SAVE RESULT FOR REVIEW
+                localStorage.setItem('seerat_last_result', JSON.stringify(state.quiz));
+
                 if (currentUser) {
                     addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), { name: state.quiz.userName, guardian: state.quiz.userGuardian, score, totalQuestions: state.quiz.questions.length, timestamp: Date.now(), timeTaken: Math.floor((state.quiz.endTime - state.quiz.startTime) / 1000) }).catch(e => console.error(e));
                 }
                 window.scrollTo(0, 0); render();
             },
             reviewQuizAnswers: () => { state.quiz.isReviewing = true; window.scrollTo(0, 0); render(); },
-            exitReview: () => { state.quiz.isReviewing = false; window.scrollTo(0, 0); render(); },
+            exitReview: () => { 
+                if (state.quiz.fromHome) {
+                    actions.goHome();
+                } else if (state.quiz.isFinished) {
+                    state.quiz.isReviewing = false; 
+                    window.scrollTo(0, 0); 
+                    render();
+                } else {
+                    actions.goHome(); 
+                }
+            },
             exitQuiz: () => { if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval); state.view = 'home'; render(); },
-            viewLeaderboard: () => { state.view = 'leaderboard'; actions.fetchLeaderboardData(); render(); window.scrollTo(0, 0); },
+            // --- UPDATED ACTIONS: Check time restriction ---
+            viewLeaderboard: () => { 
+                if (GLOBAL_END_TIME && Date.now() < GLOBAL_END_TIME) {
+                    state.showWaitModal = true;
+                    render();
+                } else {
+                    state.view = 'leaderboard'; 
+                    actions.fetchLeaderboardData(); 
+                    render(); 
+                    window.scrollTo(0, 0); 
+                }
+            },
+            viewAnswerKey: async () => {
+                if (GLOBAL_END_TIME && Date.now() < GLOBAL_END_TIME) {
+                    state.showWaitModal = true;
+                    render();
+                    return;
+                }
+
+                const lastResult = localStorage.getItem('seerat_last_result');
+                if (lastResult) {
+                    state.quiz = JSON.parse(lastResult);
+                    state.quiz.isReviewing = true;
+                    state.quiz.fromHome = true; // Mark as opened from home
+                    state.view = 'quiz';
+                    render();
+                    window.scrollTo(0, 0);
+                } else {
+                    if (ALL_QUIZZES.length === 0) { await fetchQuizData(); }
+                    // Reset quiz state for viewing blank key
+                    state.quiz = { 
+                        active: false, 
+                        currentQuestion: 0, 
+                        score: 0, 
+                        selectedOption: null, 
+                        selectedOptions: [], 
+                        isAnswerChecked: false, 
+                        isFinished: false, 
+                        isReviewing: true, 
+                        fromHome: true, // Mark as opened from home
+                        questions: [...ALL_QUIZZES], 
+                        userAnswers: {}, 
+                        userName: "", 
+                        userGuardian: "", 
+                        startTime: null, 
+                        endTime: null, 
+                        expiryTime: null, 
+                        timerInterval: null, 
+                        timeLeft: 0 
+                    };
+                    state.view = 'quiz';
+                    render();
+                    window.scrollTo(0, 0);
+                }
+            },
+            closeWaitModal: () => {
+                state.showWaitModal = false;
+                render();
+            },
             leaderboardBack: () => { state.view = state.quiz.isFinished ? 'quiz' : 'home'; render(); },
             fetchLeaderboardData: () => {
                 if (!currentUser) return;
@@ -1072,6 +1158,15 @@
                     state.leaderboardData = data;
                     if (state.view === 'leaderboard') render();
                 });
+            },
+            togglePasswordVisibility: () => {
+                const input = document.getElementById('quiz-pass-input');
+                const btn = document.getElementById('pass-toggle-btn');
+                if (input && btn) {
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    btn.innerHTML = isPassword ? SVGS.eyeOff : SVGS.eye;
+                }
             }
         };
 
@@ -1081,5 +1176,3 @@
     </script>
 </body>
 </html>
-
-
