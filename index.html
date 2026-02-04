@@ -79,11 +79,9 @@
         let GLOBAL_START_TIME = null;
         let GLOBAL_END_TIME = null;
         let QUIZ_NAME_FROM_SHEET = "সীরাত"; // This acts as the Quiz ID
-        let CURRENT_LOADED_SHEET = "Live";
-        // Track context
-        let LIVE_DATA_SIGNATURE = "";
-        // To detect fallbacks
-        let quizCountdownInterval = null;
+        let CURRENT_LOADED_SHEET = "Live"; // Track context
+        let LIVE_DATA_SIGNATURE = ""; // To detect fallbacks
+        let quizCountdownInterval = null; 
 
         // --- INLINE SVGs FOR PERFORMANCE (Fixes Click Issue) ---
         const SVGS = {
@@ -95,11 +93,12 @@
             eyeOff: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.68 0 1.35-.06 2-.19"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`,
             telegram: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.39 4.025-1.629 4.476-1.635z"/></svg>`
         };
+
         const TEXTS = {
-            siteTitle: "মাসউদ আলিমী", subtitle: "কুরআন তাফসির ও সীরাত কোর্স", home: "হোম", searchPlaceholder: "ক্লাস খুঁজুন...", listen: "শুনুন", download: "ডাউনলোড", summary: "সারসংক্ষেপ", resources: "রিসোর্স ও নোট", syllabus: "পরবর্তী ক্লাসের প্রস্তুতি ও সিলেবাস", back: "ফিরে যান", playOnDrive: "ড্রাইভে প্লে করুন", footerText: "সর্বস্বত্ব সংরক্ষিত © ২০২৬ | মাসউদ আলিমী", tafsir: "তাফসির", seerat: "সীরাত", jummah: "জুমার বয়ান", halakah: "মহিলাদের হালাকাহ", all: "সব", noResults: "কোনো ক্লাস খুঁজে পাওয়া যায়নি।", takeQuiz: "কুইজ টেস্ট দিন", quizTitle: "আপনার জ্ঞান যাচাই করুন", quizDesc: "এই ক্লাসের উপর ভিত্তি করে কুইজ টেস্ট দিন এবং নিজেকে যাচাই করুন।", 
-            startQuiz: "কুইজ শুরু করুন", resumeQuiz: "কুইজ চালিয়ে যান", question: "প্রশ্ন", next: "পরবর্তী", finish: "ফলাফল দেখুন", yourScore: "আপনার স্কোর", totalQuestions: "মোট প্রশ্ন", retry: "আবার চেষ্টা করুন", backToLecture: "ক্লাসে ফিরে যান", correct: "সঠিক উত্তর!", wrong: "ভুল উত্তর!", correctAnswerIs: "সঠিক উত্তরটি হলো:", globalQuizTitle: "সীরাত কুইজ পরীক্ষা", globalQuizDesc: "আপনার সীরাত জ্ঞান যাচাই করুন এবং নিজেকে প্রস্তুত করুন।", startGlobalQuiz: "কুইজ শুরু করুন", start: "শুরু করুন", enterDetails: "আপনার পরিচয় দিন", nameLabel: "আপনার নাম", guardianLabel: "পিতা/স্বামীর নাম", namePlaceholder: "আপনার পূর্ণ নাম লিখুন...", guardianPlaceholder: "নাম লিখুন...", leaderboardTitle: "মেধাতালিকা", rank: "অবস্থান", name: "নাম", score: "প্রাপ্ত নম্বর", time: "জমার সময়", submissionSerial: "জমার ক্রম", timeTaken: "গৃহীত সময়", viewLeaderboard: "মেধাতালিকা দেখুন", goHome: "হোমপেজ", 
+            siteTitle: "মাসউদ আলিমী", subtitle: "কুরআন তাফসির ও সীরাত কোর্স", home: "হোম", searchPlaceholder: "ক্লাস খুঁজুন...", listen: "শুনুন", download: "ডাউনলোড", summary: "সারসংক্ষেপ", resources: "রিসোর্স ও নোট", syllabus: "পরবর্তী ক্লাসের প্রস্তুতি ও সিলেবাস", back: "ফিরে যান", playOnDrive: "ড্রাইভে প্লে করুন", footerText: "সর্বস্বত্ব সংরক্ষিত © ২০২৬ | মাসউদ আলিমী", tafsir: "তাফসির", seerat: "সীরাত", jummah: "জুমার বয়ান", halakah: "মহিলাদের হালাকাহ", all: "সব", noResults: "কোনো ক্লাস খুঁজে পাওয়া যায়নি।", takeQuiz: "কুইজ টেস্ট দিন", quizTitle: "আপনার জ্ঞান যাচাই করুন", quizDesc: "এই ক্লাসের উপর ভিত্তি করে কুইজ টেস্ট দিন এবং নিজেকে যাচাই করুন।", startQuiz: "কুইজ শুরু করুন", resumeQuiz: "কুইজ চালিয়ে যান", question: "প্রশ্ন", next: "পরবর্তী", finish: "ফলাফল দেখুন", yourScore: "আপনার স্কোর", totalQuestions: "মোট প্রশ্ন", retry: "আবার চেষ্টা করুন", backToLecture: "ক্লাসে ফিরে যান", correct: "সঠিক উত্তর!", wrong: "ভুল উত্তর!", correctAnswerIs: "সঠিক উত্তরটি হলো:", globalQuizTitle: "সীরাত কুইজ পরীক্ষা", globalQuizDesc: "আপনার সীরাত জ্ঞান যাচাই করুন এবং নিজেকে প্রস্তুত করুন।", startGlobalQuiz: "কুইজ শুরু করুন", start: "শুরু করুন", enterDetails: "আপনার পরিচয় দিন", nameLabel: "আপনার নাম", guardianLabel: "পিতা/স্বামীর নাম", namePlaceholder: "আপনার পূর্ণ নাম লিখুন...", guardianPlaceholder: "নাম লিখুন...", leaderboardTitle: "মেধাতালিকা", rank: "অবস্থান", name: "নাম", score: "প্রাপ্ত নম্বর", time: "জমার সময়", submissionSerial: "জমার ক্রম", timeTaken: "গৃহীত সময়", viewLeaderboard: "মেধাতালিকা দেখুন", goHome: "হোমপেজ", 
             quizNotStarted: "শুরু হতে বাকি:", quizEnded: "কুইজ সমাপ্ত হয়েছে", enterQuiz: "কুইজ শুরু করুন", quizRunning: "কুইজ চলছে"
         };
+
         const COURSE_DATA = [
             { id: 2, date: "2026-01-02", duration: "2 hr 15 min", category: "seerat", driveLink: "https://drive.google.com/file/d/10ec8WS0aDemwlLFaavuA1_fTyV1m6x3j/view?usp=sharing", content: { title: "সীরাত-০১ঃ সীরাত পাঠের গুরুত্ব", description: "আমাদের দৈনন্দিন জীবন ও আখিরাতে সীরাত পাঠের গুরুত্ব ও পদ্ধতি সম্পর্কে আলোচনা করা হয়েছে।", syllabus: `দারসের আলোচনা আর "সীরাত পাঠ" বইয়ের ১৫ থেকে ৪৫ পৃষ্ঠার মধ্যে পরবর্তী পরীক্ষা হবে ইনশা আল্লাহু তা'আলা।`, resources: [{ label: "বইঃ সীরাত পাঠ - গুরুত্ব, পদ্ধতি ও প্রায়োগিক রুপ<br />(লেখকঃ মাওলানা খালিদ সাইফুল্লাহ রহমানী)", url: "#" }] }, quiz: [] },
             { id: 4, date: "2026-01-09", duration: "1 hr 55 min", category: "seerat", driveLink: "https://drive.google.com/file/d/1ZDWo-M7Ai0EFPyO2sF19OV7X38yDWDOk/view?usp=sharing", content: { title: "সীরাত-০২ঃ সীরাত সংরক্ষণ ও আরব জাতির ইতিহাস", description: "সীরাত সংরক্ষণের বৈজ্ঞানিক পদ্ধতি, আরবের ভৌগোলিক গুরুত্ব এবং ইব্রাহিম (আ.) ও ইসমাইল (আ.)-এর ইতিহাস।", summary: [ "সীরাত সংরক্ষণের ইতিহাস ও নির্ভরযোগ্যতা", "আরব উপদ্বীপের ভৌগোলিক ও কৌশলগত গুরুত্ব", "আরব জাতির শ্রেণিবিভাগ", "ইব্রাহিম (আ.) ও ইসমাইল (আ.)-এর মক্কায় আগমন", "আরবে মূর্তিপূজার সূচনা" ], syllabus: `পরীক্ষা দারস ও "সীরাতে খাতামুল আম্বিয়া" বইয়ের ২১ থেকে ২৬ নম্বর পৃষ্ঠা পর্যন্ত এর উপর হবে।`, resources: [{ label: 'বইঃ "সীরাতে খাতামুল আম্বিয়া"<br />(লেখকঃ মুফতী মুহাম্মদ শফী)', url: "#" }], hasFamilyTree: true }, quiz: [] },
@@ -122,6 +121,7 @@
             { id: 113, date: "সংগৃহীত", duration: "অনির্ধারিত", category: "halakah", driveLink: "https://drive.google.com/file/d/1lHEMz8rh4OFi51mE9jdk22PJ4VKAEy21/view?usp=sharing", content: { title: "মহিলাদের হালাকাহ-১৪ঃ নেক সন্তান ০৬", description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।", resources: [] }, quiz: [] },
             { id: 114, date: "সংগৃহীত", duration: "অনির্ধারিত", category: "halakah", driveLink: "https://drive.google.com/file/d/1RpGNTMKseJLBzSZnwLUkHop5hvSZPAwr/view?usp=sharing", content: { title: "মহিলাদের হালাকাহ-১৫ঃ ফরজে আইন-১", description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।", resources: [] }, quiz: [] }
         ];
+
         // --- Helper to parse Bangla numerals ---
         const parseBanglaNumber = (str) => {
             const bnToEn = {'০':0, '১':1, '২':2, '৩':3, '৪':4, '৫':5, '৬':6, '৭':7, '৮':8, '৯':9};
@@ -170,11 +170,13 @@
             quiz: { active: false, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: 3600, isPractice: false },
             alert: { show: false, message: '' }
         };
+
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDwR1TblS5HPAzJEkT7TG2RGmjGRBIMj9E", authDomain: "quiz-d9e52.firebaseapp.com", projectId: "quiz-d9e52", storageBucket: "quiz-d9e52.firebasestorage.app", messagingSenderId: "978225433994", appId: "1:978225433994:web:59f6e2e097bb04571c4c73"
         };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'seerat-course-v1';
         let db, auth, currentUser, unsubscribeLeaderboard = null;
+
         // --- HELPERS ---
         const toBanglaDigit = (num) => num?.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]) || '';
         const formatTime = (seconds) => {
@@ -197,12 +199,12 @@
         };
         const getDriveEmbedLink = (url) => typeof url === 'string' && url.includes("/d/") ? `https://drive.google.com/file/d/${url.split("/d/")[1].split('/')[0]}/preview` : url;
         const MosqueIcon = () => `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M10 6h4"/><path d="M12 6c3.5 0 6 3 6 7h-12c0-4 2.5-7 6-7Z"/><path d="M18 13v8"/><path d="M6 13v8"/><path d="M6 21h12"/><path d="M10 21v-4a2 2 0 0 1 4 0v4"/></svg>`;
+
         // --- LOGIC ---
         try {
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app); db = getFirestore(app);
-            const initAuth = async () => { try { await (typeof __initial_auth_token !== 'undefined' && __initial_auth_token ? signInWithCustomToken(auth, __initial_auth_token) : signInAnonymously(auth));
-            } catch (e) { console.error("Auth Error:", e); } };
+            const initAuth = async () => { try { await (typeof __initial_auth_token !== 'undefined' && __initial_auth_token ? signInWithCustomToken(auth, __initial_auth_token) : signInAnonymously(auth)); } catch (e) { console.error("Auth Error:", e); } };
             initAuth();
             onAuthStateChanged(auth, (user) => { currentUser = user; if (user && state.view === 'leaderboard') actions.fetchLeaderboardData(); });
         } catch (e) { console.warn("Firebase Offline Mode", e); }
@@ -235,6 +237,7 @@
         const parseSheetTime = (cell) => {
             if (!cell || !cell.v) return { h: 0, m: 0 };
             const v = cell.v;
+            
             // 1. Google JSON Date Object with Time
             if (typeof v === 'string' && v.startsWith('Date(')) {
                 const parts = v.match(/Date\(\d+,\d+,\d+,(\d+),(\d+)/);
@@ -262,6 +265,7 @@
             try {
                 // Use 'sheet' query param. Default to "Live" if not provided
                 const queryUrl = SHEET_BASE_URL + "&sheet=" + encodeURIComponent(sheetName) + "&t=" + Date.now();
+                
                 const response = await fetch(queryUrl);
                 const text = await response.text();
                 // Check if valid JSONP response (handling sheet not found)
@@ -274,14 +278,17 @@
                 }
 
                 const json = JSON.parse(text.substring(text.indexOf("({") + 1, text.lastIndexOf("})") + 1));
+                
                 if (json.status === 'error') {
                     console.error("GViz Error:", json.errors);
                     return null;
                 }
 
                 const rows = json.table.rows;
+                
                 if (rows.length > 0) {
                     CURRENT_LOADED_SHEET = sheetName;
+                    
                     // 1. Identify Config Row (Always prioritize Row 2 [Index 1])
                     let configRow = null;
                     let questionsStartRow = 0;
@@ -302,6 +309,7 @@
                     const firstQ = rows[questionsStartRow]?.c[0]?.v || "";
                     const firstOpt = rows[questionsStartRow]?.c[1]?.v || "";
                     const currentSignature = `${firstQ}|${firstOpt}`;
+
                     if (sheetName === "Live") {
                         // Store the Live signature for future comparison
                         LIVE_DATA_SIGNATURE = currentSignature;
@@ -323,6 +331,7 @@
                     }
                     
                     if (configRow.c[15]?.v) QUIZ_PASSWORD = String(configRow.c[15].v).trim();
+                    
                     const cellQ = configRow.c[16]; // Start Date
                     const cellR = configRow.c[17]; // Start Time
                     const cellS = configRow.c[18]; // End Date
@@ -380,7 +389,7 @@
                     if (sheetName === "Live") {
                         ALL_QUIZZES = parsedQuestions;
                         // FORCE UPDATE UI HERE
-                        render();
+                        render(); 
                         handleQuizCountdown();
                     }
                     
@@ -390,17 +399,18 @@
                 // Only render if fetching "Live" for homepage update
                 if (sheetName === "Live") {
                     ALL_QUIZZES = []; // Clear if empty
-                    render();
+                    render(); 
                     handleQuizCountdown();
                 }
                 return null;
             } catch (error) { 
-                console.error("Error fetching Sheet:", error);
+                console.error("Error fetching Sheet:", error); 
                 return null;
             }
         }
         // Initial fetch for homepage
         fetchQuizData("Live");
+
         const getSavedQuizState = () => {
             try {
                 const saved = JSON.parse(localStorage.getItem('seerat_quiz_state'));
@@ -419,18 +429,23 @@
             });
             const parts = bdFormatter.formatToParts(now);
             const getPart = (type) => parseInt(parts.find(p => p.type === type).value, 10);
+            
             // These are the Year, Month, Day in Bangladesh right now
             const year = getPart('year');
             const month = getPart('month') - 1; // JS months are 0-11
             const day = getPart('day');
+            
             // Create a date object representing midnight of the BD date in the local browser's timezone
             // This ensures math with other local dates works predictably (counting full days)
             const date = new Date(year, month, day);
+
             // --- Bangla Date Calculation ---
             const bnMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
+            
             // Calculate Day of Year relative to April 14th (Pohela Boishakh)
             const pohelaBoishakh = new Date(year, 3, 14); // April 14
             let diff = Math.floor((date - pohelaBoishakh) / (1000 * 60 * 60 * 24));
+            
             let bnYear = year - 593;
             if (diff < 0) {
                 bnYear = year - 594;
@@ -441,6 +456,7 @@
             // Bangla Academy Rules: First 6 months 31, rest 30. Falgun 29 (30 in leap year).
             const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
             const bnMonthDays = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, isLeap ? 30 : 29, 30];
+            
             let bnMonthIndex = 0;
             let bnDate = 0;
             for (let i = 0; i < 12; i++) {
@@ -460,15 +476,17 @@
             // using 'en-US' for raw numbers, specific calendar, and BD timezone
             const hParts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Asia/Dhaka' }).formatToParts(hijriDateAdjusted);
             const hDayEn = hParts.find(p => p.type === 'day')?.value;
-            const hMonthIndex = parseInt(hParts.find(p => p.type === 'month')?.value) - 1;
+            const hMonthIndex = parseInt(hParts.find(p => p.type === 'month')?.value) - 1; 
             const hYearEn = hParts.find(p => p.type === 'year')?.value.replace(/[^0-9]/g, '');
             
             const hijriMonths = ["মহররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জুমাদাল উলা", "জুমাদাস সানি", "রজব", "শা‘বান", "রমজান", "শাওয়াল", "জিলকদ", "জিলহজ"];
             const hDay = toBanglaDigit(hDayEn);
             const hMonth = hijriMonths[hMonthIndex] || "হিজরি মাস";
             const hYear = toBanglaDigit(hYearEn);
+
             // --- English Date (Bangladesh Timezone) ---
             const enString = new Intl.DateTimeFormat('bn-BD', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }).format(now);
+
             return `<div class="w-full md:w-auto text-center md:text-left flex flex-col items-center md:items-start relative z-10 pl-2">
                 <div class="flex items-center justify-center md:justify-start gap-5 mb-6">
                     <span class="text-7xl font-black text-slate-800 dark:text-white tracking-tighter leading-none">${hDay}</span>
@@ -521,15 +539,19 @@
             }
             if (state.view === 'quiz_password') document.getElementById('quiz-pass-input')?.focus();
         };
+
         // --- NEW FUNCTION: Live Countdown on Button ---
         const handleQuizCountdown = () => {
             if (quizCountdownInterval) clearInterval(quizCountdownInterval);
+            
             const btn = document.getElementById('quiz-start-btn');
             const countdownDisplay = document.getElementById('quiz-countdown-display');
             const noteEl = document.getElementById('quiz-schedule-text');
             if (!btn) return;
+            
             // Logic 1: If NO global schedule (no start time), it's always open (unless no questions)
             // But if we have Start Time, we enforce rules.
+            
             if (!GLOBAL_START_TIME) {
                  // No schedule defined, button is just "Enter Quiz"
                  // Check saved state first even if no schedule
@@ -548,6 +570,7 @@
                      btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-white btn-3d border border-emerald-100";
                  }
                  lucide.createIcons();
+                 
                  // If saved state exists, we need interval to update countdown
                  if (saved && saved.expiryTime > Date.now()) {
                      quizCountdownInterval = setInterval(() => {
@@ -588,7 +611,10 @@
 
                 // 2. Schedule Logic (No Active Session)
                 // Determine effective end time for countdown display
-                const endTime = GLOBAL_END_TIME ? GLOBAL_END_TIME : GLOBAL_START_TIME + (QUIZ_TIME_LIMIT * 1000);
+                const endTime = GLOBAL_END_TIME 
+                    ? GLOBAL_END_TIME 
+                    : GLOBAL_START_TIME + (QUIZ_TIME_LIMIT * 1000);
+                
                 // Determine Scenarios for Text Update
                 const isScenario2 = (QUIZ_TIME_LIMIT > 0 && GLOBAL_END_TIME);
                 const isScenario3 = (!QUIZ_TIME_LIMIT && GLOBAL_END_TIME);
@@ -611,13 +637,13 @@
                         btn.disabled = true;
                         // Red background, white text for ended state
                         btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-red-600 text-white cursor-not-allowed border border-red-700 opacity-90";
+                        
                         // Update Schedule Note Text to Telegram Link
                         if (noteEl) {
                            noteEl.innerHTML = `পরবর্তী কুইজের জন্য <a href="https://t.me/seerat2026" target="_blank" class="inline-flex items-center gap-1 font-bold underline hover:text-emerald-200 transition-colors">${SVGS.telegram} টেলিগ্রাম</a> গ্রুপে চোখ রাখুন`;
                         }
                         
-                        clearInterval(quizCountdownInterval);
-                        // Stop loop
+                        clearInterval(quizCountdownInterval); // Stop loop
                     } else {
                         // Running Phase
                         // If End Time exists, show countdown to end on button
@@ -632,6 +658,7 @@
                         btn.disabled = false;
                         btn.onclick = () => window.actions.startQuiz();
                         btn.className = "px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 whitespace-nowrap bg-white text-emerald-700 hover:bg-emerald-50 btn-3d border border-emerald-100";
+                        
                         // --- LIVE NOTE UPDATE FOR SCENARIO 2 ---
                         if (noteEl) {
                             if (isScenario2) {
@@ -639,8 +666,7 @@
                                 const e = new Date(GLOBAL_END_TIME);
                                 const eDate = e.toLocaleString('bn-BD', { day: 'numeric', month: 'long', timeZone: 'Asia/Dhaka' });
                                 const eTime = e.toLocaleString('bn-BD', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'Asia/Dhaka' });
-                                const newText = `কুইজ চলছে!
-শেষ সময়: ${eDate} ${eTime}`; // Matches user request exactly
+                                const newText = `কুইজ চলছে! শেষ সময়: ${eDate} ${eTime}`; // Matches user request exactly
                                 if (noteEl.innerText !== newText) noteEl.innerText = newText;
                             } else if (isScenario3 || (!isScenario2 && !isScenario3)) {
                                 if (noteEl.innerText !== TEXTS.quizRunning) noteEl.innerText = TEXTS.quizRunning;
@@ -683,7 +709,7 @@
             const savedState = getSavedQuizState();
             
             // Initial placeholders, will be updated by handleQuizCountdown
-            let scheduleNote = "";
+            let scheduleNote = ""; 
             if (GLOBAL_START_TIME) {
                 const d = new Date(GLOBAL_START_TIME);
                 const datePart = d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' });
@@ -714,7 +740,7 @@
                         </h3>
                         <p class="opacity-90 max-w-lg">${scheduleNote ? `<span id="quiz-schedule-text" class="inline-block bg-white/20 px-2 py-0.5 rounded text-sm font-bold mt-1">${scheduleNote}</span>` : TEXTS.globalQuizDesc}</p>
                     </div>
-                    <div class="flex flex-col sm:flex-row gap-3 relative z-10 items-center">
+                    <div class="flex flex-row gap-3 relative z-10 items-center overflow-x-auto">
                         <button onclick="actions.viewLeaderboard()" class="bg-teal-900/80 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none backdrop-blur-sm btn-3d"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
                         <button onclick="actions.viewAnswerKey()" class="bg-teal-900/80 hover:bg-teal-950 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap border-none backdrop-blur-sm btn-3d"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
                         
@@ -748,6 +774,7 @@
                 halakah: 'bg-rose-100 text-rose-600',
                 jummah: 'bg-blue-100 text-blue-600'
             }[lecture.category] || 'bg-stone-100';
+
             const catColor = { 
                 tafsir: 'bg-emerald-500', 
                 seerat: 'bg-amber-500', 
@@ -775,14 +802,18 @@
         };
 
         const renderEmptyState = () => `<div class="col-span-full text-center py-20 opacity-50"><div class="inline-block p-4 rounded-full bg-gray-100 dark:bg-slate-800 mb-2"><i data-lucide="search" class="w-6 h-6"></i></div><p class="text-lg font-medium">${TEXTS.noResults}</p></div>`;
+
         const renderFooter = () => `<footer class="py-8 text-center text-sm opacity-60 border-t border-stone-200 dark:border-slate-800"><div class="container mx-auto px-4"><p class="font-medium tracking-wide">${TEXTS.footerText}</p></div></footer>`;
+
         const renderDetail = () => {
             const l = state.selectedLecture;
             let badgeClass = l.category === 'seerat' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 
                              (l.category === 'halakah' ? 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200' : 
                              (l.category === 'jummah' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                                'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'));
+                             'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'));
+            
             const resourcesHTML = l.content.resources.length > 0 ? `<ul class="space-y-3">` + l.content.resources.map(res => `<li><a href="${res.url}" class="flex items-center gap-3 text-sm p-4 rounded-xl transition-all duration-200 border border-transparent hover:shadow-md bg-white hover:border-emerald-100 text-emerald-800 shadow-sm dark:bg-slate-700/50 dark:hover:bg-slate-700 dark:text-emerald-400"><div class="p-2 rounded-full bg-emerald-100 dark:bg-emerald-900/50"><i data-lucide="external-link" class="w-4 h-4"></i></div><span class="font-medium">${res.label}</span></a></li>`).join('') + `</ul>` : `<p class="text-sm opacity-50 italic">কোনো নোট যুক্ত করা হয়নি</p>`;
+            
             // Practice & Archive Section
             let practiceSectionHTML = "";
             if (l.quizInfo) {
@@ -804,7 +835,7 @@
                     <div class="rounded-2xl p-6 md:p-8 border shadow-soft bg-white border-stone-200 dark:bg-slate-800 dark:border-slate-700">
                         <div class="mb-8 space-y-3">
                              <div class="flex flex-wrap gap-3 items-center mb-3">
-                                 <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${badgeClass}">${TEXTS[l.category]}</span>
+                                <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${badgeClass}">${TEXTS[l.category]}</span>
                                 <span class="text-xs opacity-60 flex items-center gap-1 font-medium"><i data-lucide="calendar" class="w-3 h-3"></i> ${l.date}</span>
                                 <span class="text-xs opacity-60 flex items-center gap-1 font-medium"><i data-lucide="clock" class="w-3 h-3"></i> ${l.duration}</span>
                             </div>
@@ -813,7 +844,7 @@
                         </div>
                         <div class="p-6 rounded-2xl mb-10 flex flex-col items-center justify-center gap-6 shadow-inner bg-stone-50 dark:bg-slate-900">
                             <div class="w-full flex flex-col items-center text-center gap-4">
-                                 ${state.playerMode === 'embed' ? `<div class="w-full max-w-3xl bg-emerald-900 rounded-xl overflow-hidden shadow-2xl relative animate-fade-in ring-1 ring-emerald-900/50"><div class="p-2 text-center text-xs text-white/80 bg-emerald-800/80 backdrop-blur-sm flex items-center justify-center gap-2"><i data-lucide="info" class="w-3 h-3"></i> গুগল ড্রাইভের বড় ফাইলের ক্ষেত্রে "Virus Scan Warning" দেখানো স্বাভাবিক।</div><iframe src="${getDriveEmbedLink(l.driveLink)}" class="w-full h-[120px] border-0" allow="autoplay" loading="lazy" title="Audio Player"></iframe></div>` : ''}
+                                ${state.playerMode === 'embed' ? `<div class="w-full max-w-3xl bg-emerald-900 rounded-xl overflow-hidden shadow-2xl relative animate-fade-in ring-1 ring-emerald-900/50"><div class="p-2 text-center text-xs text-white/80 bg-emerald-800/80 backdrop-blur-sm flex items-center justify-center gap-2"><i data-lucide="info" class="w-3 h-3"></i> গুগল ড্রাইভের বড় ফাইলের ক্ষেত্রে "Virus Scan Warning" দেখানো স্বাভাবিক।</div><iframe src="${getDriveEmbedLink(l.driveLink)}" class="w-full h-[120px] border-0" allow="autoplay" loading="lazy" title="Audio Player"></iframe></div>` : ''}
                                 <div class="flex flex-col items-center gap-3 w-full max-w-md"><a href="${l.driveLink}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 active:scale-95"><i data-lucide="download" class="w-5 h-5"></i> ${TEXTS.playOnDrive} / ${TEXTS.download}</a></div>
                             </div>
                         </div>
@@ -854,6 +885,7 @@
             const endTimeString = GLOBAL_END_TIME ? new Date(GLOBAL_END_TIME).toLocaleString('bn-BD', {
                 month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'Asia/Dhaka'
             }) : 'অনির্ধারিত';
+
             return `
             <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-stone-200 dark:border-slate-700 relative scale-100 transition-transform">
@@ -885,6 +917,7 @@
                 <button onclick="actions.closeAlert()" class="w-full py-3 rounded-xl bg-stone-800 hover:bg-stone-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold shadow-lg transition-all active:scale-95">ঠিক আছে</button>
             </div>
         </div>`;
+
         const renderQuizRegistration = () => `
             <div class="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in bg-stone-50 text-stone-900 dark:bg-slate-900 dark:text-white">
                 <div class="max-w-md w-full rounded-2xl shadow-xl overflow-hidden border p-8 relative bg-white border-stone-200 dark:bg-slate-800 dark:border-slate-700">
@@ -901,6 +934,7 @@
                     </div>
                 </div>
             </div>`;
+
         // -- QUIZ & REVIEW --
         const getOptionClass = (isSelected, isRight, isReview) => {
              if (isReview) {
@@ -913,9 +947,11 @@
                  return "bg-white border-stone-200 hover:border-emerald-300 hover:bg-emerald-50/30 shadow-sm dark:bg-slate-800 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-750";
              }
         };
+
         const renderQuiz = () => {
             const { questions, userAnswers, score, isFinished, isReviewing, timeLeft, userName, userGuardian } = state.quiz;
             const banglaIndices = ["ক", "খ", "গ", "ঘ", "ঙ", "চ", "ছ", "জ", "ঝ", "ঞ", "ট", "ঠ"];
+
             // 1. REVIEW MODE
             if (isReviewing) {
                 return `
@@ -930,6 +966,7 @@
                             const uAns = (userAnswers[idx] || []).slice().sort((a, b) => a - b);
                             const cAns = q.correctIndices.slice().sort((a, b) => a - b);
                             const isCorrect = JSON.stringify(uAns) === JSON.stringify(cAns);
+                            
                             return `
                             <div class="rounded-2xl border-l-4 shadow-sm overflow-hidden bg-white dark:bg-slate-800 ${isCorrect ? 'border-emerald-500' : 'border-rose-500'}">
                                 <div class="p-5 flex gap-4">
@@ -945,6 +982,7 @@
                                                 let circleClass = "bg-slate-800 text-white border border-slate-600"; 
                                                 if (isRight) circleClass = "bg-emerald-600 text-white border-emerald-600";
                                                 else if (isSel && !isRight) circleClass = "bg-rose-600 text-white border-rose-600";
+
                                                 return `
                                                 <div class="p-3 rounded-lg border flex justify-between items-center text-sm gap-3 ${getOptionClass(isSel, isRight, true)}">
                                                     <div class="flex items-center gap-3 flex-1">
@@ -988,12 +1026,10 @@
                         <div class="p-4 rounded-xl mb-8 bg-slate-100 dark:bg-slate-700/50"><p class="text-lg font-medium leading-relaxed">"${msg}"</p></div>
                         <div class="flex flex-col gap-3 w-full">
                              ${!state.quiz.isPractice ? `<button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>` : ''}
-                            
-                            <div class="flex flex-row gap-3 mt-2">
-                                <button onclick="actions.reviewQuizAnswers()" class="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
-                                <button onclick="actions.goHome()" class="flex-1 py-3.5 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2"><i data-lucide="home" class="w-5 h-5"></i> ${TEXTS.goHome}</button>
+                            <div class="flex flex-col gap-3 mt-2">
+                                <button onclick="actions.reviewQuizAnswers()" class="py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
+                                <button onclick="actions.goHome()" class="py-3.5 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2"><i data-lucide="home" class="w-5 h-5"></i> ${TEXTS.goHome}</button>
                             </div>
-                            
                         </div>
                     </div>
                 </div>`;
@@ -1024,6 +1060,7 @@
                                     const isSelected = uAns.includes(optIdx);
                                     let badgeClass = isSelected ? 'bg-emerald-600 text-white dark:bg-emerald-500' : 'bg-stone-100 text-stone-600 group-hover:bg-emerald-100 group-hover:text-emerald-700 dark:bg-slate-700 dark:text-slate-300 dark:group-hover:bg-slate-600 dark:group-hover:text-white';
                                     let marker = isSelected ? SVGS.checkSquare : SVGS.square;
+                                    
                                     return `<button type="button" onclick="actions.toggleQuizOption(${qIdx}, ${optIdx})" class="w-full p-3 md:p-4 rounded-xl border-2 text-left font-medium transition-all duration-200 flex items-center justify-between group ${getOptionClass(isSelected, false, false)}"><div class="flex items-center gap-3"><div class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold transition-colors ${badgeClass}">${banglaIndices[optIdx] || (optIdx + 1)}</div><span class="text-base ${isSelected ? 'text-emerald-800 dark:text-emerald-100 font-bold' : ''}">${option}</span></div><div class="shrink-0 pl-2">${marker}</div></button>`;
                                 }).join('')}
                             </div>
@@ -1036,8 +1073,9 @@
         const renderLeaderboard = () => {
             const data = state.leaderboardData;
             // Filter logic if needed (e.g., if we are showing a specific quiz leaderboard)
-            const filteredData = state.leaderboardFilter ? data.filter(d => d.quizId === state.leaderboardFilter) : data.filter(d => d.quizId === "সীরাত" || !d.quizId);
-            // Default to live/seerat if not filtered
+            const filteredData = state.leaderboardFilter 
+                ? data.filter(d => d.quizId === state.leaderboardFilter) 
+                : data.filter(d => d.quizId === "সীরাত" || !d.quizId); // Default to live/seerat if not filtered
 
             // If we are filtering, we might want to show a title for it
             const lbTitle = state.leaderboardFilter ? `মেধাতালিকা: ${state.leaderboardTitle || state.leaderboardFilter}` : TEXTS.leaderboardTitle;
@@ -1061,12 +1099,14 @@
                                         else if (idx === 2) rankDisplay = `<div class="flex flex-col items-center"><i data-lucide="medal" class="w-7 h-7 text-amber-700 fill-amber-600"></i><span class="text-[10px] font-bold text-amber-800 uppercase">৩য়</span></div>`;
                                         else if (idx === 3) rankDisplay = `<div class="flex flex-col items-center"><div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg border-2 border-blue-200">৪</div><span class="text-[10px] font-bold text-blue-600 uppercase">৪র্থ</span></div>`;
                                         else if (idx === 4) rankDisplay = `<div class="flex flex-col items-center"><div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-lg border-2 border-purple-200">৫</div><span class="text-[10px] font-bold text-purple-600 uppercase">৫ম</span></div>`;
+                                        
                                         let rowClass = `border-b last:border-0 border-gray-200 dark:border-gray-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors ${idx % 2 === 0 ? 'bg-white dark:bg-slate-900/50' : 'bg-gray-50 dark:bg-slate-800/50'}`;
                                         if (idx === 0) rowClass += " bg-yellow-50/50 dark:bg-yellow-900/10";
                                         else if (idx === 1) rowClass += " bg-slate-50/50 dark:bg-slate-900/20";
                                         else if (idx === 2) rowClass += " bg-amber-50/50 dark:bg-amber-900/10";
                                         else if (idx === 3) rowClass += " bg-blue-50/30 dark:bg-blue-900/10";
                                         else if (idx === 4) rowClass += " bg-purple-50/30 dark:bg-purple-900/10";
+
                                         const dateObj = new Date(user.timestamp);
                                         return `<tr class="${rowClass}"><td class="p-4 text-center align-middle">${rankDisplay}</td><td class="p-4 align-middle"><div class="font-bold text-base md:text-lg">${user.name}</div><div class="text-xs opacity-60">${user.guardian || '-'}</div></td><td class="p-4 text-center align-middle"><span class="inline-block px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-extrabold text-2xl shadow-sm">${toBanglaDigit(user.score)}</span></td><td class="p-4 text-center align-middle font-medium text-emerald-600">${user.timeTaken ? `${toBanglaDigit(Math.floor(user.timeTaken/60))} মি ${toBanglaDigit(user.timeTaken%60)} সে` : '-'}</td><td class="p-4 text-center align-middle"><span class="font-bold text-base md:text-lg opacity-70">${toBanglaDigit(user.submissionSerial || '-')}</span></td><td class="p-4 text-center align-middle hidden sm:table-cell"><div class="flex flex-col items-center text-stone-700 dark:text-stone-200"><span class="font-medium text-base">${dateObj.toLocaleString('bn-BD', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-')}</span><span class="text-sm font-medium opacity-90">${dateObj.toLocaleString('bn-BD', {hour:'numeric',minute:'numeric',second:'numeric',hour12:true})}</span></div></td></tr>`;
                                     }).join('') : `<tr><td colspan="6" class="p-10 text-center opacity-50">এখনো কোনো ফলাফল জমা পড়েনি।</td></tr>`}
@@ -1087,11 +1127,10 @@
             startQuiz: async () => {
                 // Ensure ALL_QUIZZES contains "Live" data
                 if (CURRENT_LOADED_SHEET !== "Live" || ALL_QUIZZES.length === 0) { 
-                    const data = await fetchQuizData("Live");
+                    const data = await fetchQuizData("Live"); 
                     if (!data || data.length === 0) { alert("কুইজ লোড করা যায়নি। ইন্টারনেট সংযোগ চেক করুন।"); return; } 
                 }
-                const saved = getSavedQuizState();
-                if (saved) { actions.resumeQuiz(); return; }
+                const saved = getSavedQuizState(); if (saved) { actions.resumeQuiz(); return; }
                 state.quiz = { active: true, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [...ALL_QUIZZES], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: QUIZ_TIME_LIMIT, isPractice: false };
                 state.view = (QUIZ_PASSWORD && QUIZ_PASSWORD !== "") ? 'quiz_password' : 'quiz_registration'; render(); window.scrollTo(0, 0);
             },
@@ -1120,8 +1159,9 @@
                     timeLeft: 0, // No timer for practice usually, or handled differently
                     isPractice: true 
                 };
+                
                 // For practice, skip password check and go to registration (for name) or direct start
-                state.view = 'quiz_registration';
+                state.view = 'quiz_registration'; 
                 render(); 
                 window.scrollTo(0, 0);
             },
@@ -1161,16 +1201,18 @@
             },
             submitRegistration: () => {
                 const name = document.getElementById('reg-name').value.trim(), guardian = document.getElementById('reg-guardian').value.trim();
+                
                 if (!name || (!state.quiz.isPractice && !guardian)) { 
-                    alert(state.quiz.isPractice ? "দয়া করে আপনার নাম দিন।" : "দয়া করে উভয় ঘর পূরণ করুন।");
+                    alert(state.quiz.isPractice ? "দয়া করে আপনার নাম দিন।" : "দয়া করে উভয় ঘর পূরণ করুন।"); 
                     return; 
                 }
                 
-                state.quiz.userName = name;
+                state.quiz.userName = name; 
                 state.quiz.userGuardian = guardian || "-"; 
                 // state.quiz.questions is already set in startQuiz or startPractice
                 
-                state.quiz.startTime = Date.now();
+                state.quiz.startTime = Date.now(); 
+                
                 // Expiry Logic: Only if NOT practice and there is a limit
                 if (!state.quiz.isPractice) {
                     if (QUIZ_TIME_LIMIT > 0) {
@@ -1180,11 +1222,11 @@
                     } else {
                         state.quiz.expiryTime = Date.now() + (3600 * 1000);
                     }
-                    localStorage.setItem('seerat_quiz_state', JSON.stringify(state.quiz));
+                    localStorage.setItem('seerat_quiz_state', JSON.stringify(state.quiz)); 
                     actions.startTimerLoop();
                 }
 
-                state.view = 'quiz';
+                state.view = 'quiz'; 
                 render(); 
                 window.scrollTo(0, 0);
             },
@@ -1199,8 +1241,7 @@
             resumeQuiz: () => {
                 const saved = getSavedQuizState();
                 if (!saved) { alert("সংরক্ষিত কুইজ পাওয়া যায়নি বা মেয়াদ শেষ হয়ে গেছে।"); state.view = 'home'; render(); return; }
-                state.quiz = saved; actions.startTimerLoop();
-                state.view = 'quiz'; render(); window.scrollTo(0, 0);
+                state.quiz = saved; actions.startTimerLoop(); state.view = 'quiz'; render(); window.scrollTo(0, 0);
             },
             toggleQuizOption: (qIdx, optIdx) => {
                 const current = state.quiz.userAnswers[qIdx] || [];
@@ -1226,8 +1267,10 @@
                 });
                 state.quiz.score = score; state.quiz.isFinished = true; state.quiz.isReviewing = false;
                 localStorage.removeItem('seerat_quiz_state');
+                
                 // SAVE RESULT FOR REVIEW
                 if(!state.quiz.isPractice) localStorage.setItem('seerat_last_result', JSON.stringify(state.quiz));
+
                 // ONLY SAVE TO FIREBASE IF NOT PRACTICE
                 if (currentUser && !state.quiz.isPractice) {
                     addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), { 
@@ -1252,11 +1295,11 @@
                      state.quiz.isReviewing = false;
                      render();
                 } else if (state.quiz.isFinished) {
-                    state.quiz.isReviewing = false;
+                    state.quiz.isReviewing = false; 
                     window.scrollTo(0, 0); 
                     render();
                 } else {
-                    actions.goHome();
+                    actions.goHome(); 
                 }
             },
             exitQuiz: () => { if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval); state.view = state.selectedLecture ? 'detail' : 'home'; render(); },
@@ -1267,7 +1310,7 @@
                     state.showWaitModal = true;
                     render();
                 } else {
-                    state.view = 'leaderboard';
+                    state.view = 'leaderboard'; 
                     actions.fetchLeaderboardData(); 
                     render(); 
                     window.scrollTo(0, 0); 
@@ -1330,7 +1373,7 @@
                 } else {
                      state.view = state.quiz.isFinished ? 'quiz' : 'home'; 
                 }
-                render();
+                render(); 
             },
             fetchLeaderboardData: () => {
                 if (!currentUser) return;
