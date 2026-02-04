@@ -74,11 +74,13 @@
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CONSTANTS & DATA ---
-        const SHEET_JSON_URL = "https://docs.google.com/spreadsheets/d/15xgI5Q8rWWrjJEen7fQtGaULAFDPIpx5eL4I-74GnWY/gviz/tq?tqx=out:json&gid=0";
+        const SHEET_BASE_URL = "https://docs.google.com/spreadsheets/d/15xgI5Q8rWWrjJEen7fQtGaULAFDPIpx5eL4I-74GnWY/gviz/tq?tqx=out:json";
         let ALL_QUIZZES = [], QUIZ_TIME_LIMIT = 0, QUIZ_PASSWORD = "";
         let GLOBAL_START_TIME = null;
         let GLOBAL_END_TIME = null;
-        let QUIZ_NAME_FROM_SHEET = "সীরাত"; // Default
+        let QUIZ_NAME_FROM_SHEET = "সীরাত"; // This acts as the Quiz ID
+        let CURRENT_LOADED_SHEET = "Live"; // Track context
+        let LIVE_DATA_SIGNATURE = ""; // To detect fallbacks
         let quizCountdownInterval = null; 
 
         // --- INLINE SVGs FOR PERFORMANCE (Fixes Click Issue) ---
@@ -120,12 +122,53 @@
             { id: 114, date: "সংগৃহীত", duration: "অনির্ধারিত", category: "halakah", driveLink: "https://drive.google.com/file/d/1RpGNTMKseJLBzSZnwLUkHop5hvSZPAwr/view?usp=sharing", content: { title: "মহিলাদের হালাকাহ-১৫ঃ ফরজে আইন-১", description: "মহিলাদের জন্য বিশেষ দ্বীনি আলোচনা।", resources: [] }, quiz: [] }
         ];
 
+        // --- Helper to parse Bangla numerals ---
+        const parseBanglaNumber = (str) => {
+            const bnToEn = {'০':0, '১':1, '২':2, '৩':3, '৪':4, '৫':5, '৬':6, '৭':7, '৮':8, '৯':9};
+            return str.replace(/[০-৯]/g, (d) => bnToEn[d]);
+        };
+
+        // --- Automatically Inject Quiz Info ---
+        COURSE_DATA.forEach(l => {
+            // Regex to match "Title-Number" e.g., "সীরাত-০১", "মহিলাদের হালাকাহ-১"
+            // Note: Tafsir not explicitly in data but handling generically
+            const seeratMatch = l.content.title.match(/সীরাত-([০-৯]+)/);
+            const tafsirMatch = l.content.title.match(/তাফসির-([০-৯]+)/);
+            const halakahMatch = l.content.title.match(/মহিলাদের হালাকাহ-([০-৯]+)/);
+
+            let sheetName = null;
+            let quizId = null;
+
+            if (seeratMatch) {
+                const num = parseInt(parseBanglaNumber(seeratMatch[1]), 10);
+                sheetName = `seerat-${num}`;
+                quizId = `seerat-${num}`;
+            } else if (tafsirMatch) {
+                const num = parseInt(parseBanglaNumber(tafsirMatch[1]), 10);
+                sheetName = `tafseer-${num}`;
+                quizId = `tafseer-${num}`;
+            } else if (halakahMatch) {
+                const num = parseInt(parseBanglaNumber(halakahMatch[1]), 10);
+                sheetName = `halakah-${num}`;
+                quizId = `halakah-${num}`;
+            }
+
+            if (sheetName) {
+                l.quizInfo = {
+                    sheetName: sheetName,
+                    quizId: quizId,
+                    title: l.content.title + " কুইজ"
+                };
+            }
+        });
+
         const latestLectureWithSyllabus = [...COURSE_DATA].reverse().find(l => l.content.syllabus);
         const GLOBAL_NOTICE = latestLectureWithSyllabus ? latestLectureWithSyllabus.content.syllabus : "আসসালামু আলাইকুম।";
 
         const state = {
-            darkMode: false, view: 'home', selectedLecture: null, filter: 'seerat', search: '', playerMode: 'embed', playbackRate: 1.0, leaderboardData: [], showWaitModal: false,
-            quiz: { active: false, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: 3600 }
+            darkMode: false, view: 'home', selectedLecture: null, filter: 'seerat', search: '', playerMode: 'embed', playbackRate: 1.0, leaderboardData: [], showWaitModal: false, leaderboardFilter: null,
+            quiz: { active: false, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: 3600, isPractice: false },
+            alert: { show: false, message: '' }
         };
 
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -217,14 +260,35 @@
             return { h: 0, m: 0 };
         };
 
-        async function fetchQuizData() {
+        // Modified to accept dynamic sheetName and detect fallbacks
+        async function fetchQuizData(sheetName = "Live") {
             try {
-                const response = await fetch(SHEET_JSON_URL + "&t=" + Date.now());
+                // Use 'sheet' query param. Default to "Live" if not provided
+                const queryUrl = SHEET_BASE_URL + "&sheet=" + encodeURIComponent(sheetName) + "&t=" + Date.now();
+                
+                const response = await fetch(queryUrl);
                 const text = await response.text();
+                // Check if valid JSONP response (handling sheet not found)
+                if(!text.includes("google.visualization.Query.setResponse")) {
+                    console.error("Sheet not found or invalid response");
+                    if (sheetName === "Live") {
+                         ALL_QUIZZES = [];
+                    }
+                    return null;
+                }
+
                 const json = JSON.parse(text.substring(text.indexOf("({") + 1, text.lastIndexOf("})") + 1));
+                
+                if (json.status === 'error') {
+                    console.error("GViz Error:", json.errors);
+                    return null;
+                }
+
                 const rows = json.table.rows;
                 
                 if (rows.length > 0) {
+                    CURRENT_LOADED_SHEET = sheetName;
+                    
                     // 1. Identify Config Row (Always prioritize Row 2 [Index 1])
                     let configRow = null;
                     let questionsStartRow = 0;
@@ -238,6 +302,25 @@
                         }
                     }
                     if (!configRow) { configRow = rows[0]; questionsStartRow = 0; }
+
+                    // --- SIGNATURE & FALLBACK DETECTION ---
+                    // Generate a simple signature based on the first question text + option 1
+                    // This assumes that different quizzes will have different first questions.
+                    const firstQ = rows[questionsStartRow]?.c[0]?.v || "";
+                    const firstOpt = rows[questionsStartRow]?.c[1]?.v || "";
+                    const currentSignature = `${firstQ}|${firstOpt}`;
+
+                    if (sheetName === "Live") {
+                        // Store the Live signature for future comparison
+                        LIVE_DATA_SIGNATURE = currentSignature;
+                    } else {
+                        // If checking a Practice Sheet, compare with Live Signature
+                        // If they are identical, it means Google Sheets defaulted to the first sheet (Live) because the requested sheet (e.g. seerat-1) was not found.
+                        if (LIVE_DATA_SIGNATURE && currentSignature === LIVE_DATA_SIGNATURE) {
+                            console.warn(`Fallback detected for sheet: ${sheetName}. Treating as Not Found.`);
+                            return null;
+                        }
+                    }
 
                     // 2. Parse Config
                     // O2 (Index 14): Duration in Seconds. If empty, 0.
@@ -258,11 +341,10 @@
                     if (configRow.c[20]?.v) {
                         QUIZ_NAME_FROM_SHEET = String(configRow.c[20].v).trim();
                     } else {
-                        QUIZ_NAME_FROM_SHEET = "সীরাত"; // Default
+                        // Default if parsing Live
+                        QUIZ_NAME_FROM_SHEET = sheetName === "Live" ? "সীরাত" : sheetName;
                     }
                     
-                    // --- REMOVED: Leaderboard Password Parsing ---
-
                     if (cellQ && cellR) {
                         try {
                             const dateParts = parseSheetDate(cellQ);
@@ -290,20 +372,44 @@
                     }
 
                     // 3. Map Questions
-                    ALL_QUIZZES = rows.slice(questionsStartRow).filter(r => r.c[0]?.v && r.c[0].v !== 'Question' && r.c[0].v !== 'প্রশ্ন').map(row => {
+                    const parsedQuestions = rows.slice(questionsStartRow).filter(r => r.c[0]?.v && r.c[0].v !== 'Question' && r.c[0].v !== 'প্রশ্ন').map(row => {
                         const cells = row.c;
                         const options = [];
                         for (let i = 1; i <= 12; i++) if (cells[i]?.v) options.push(String(cells[i].v).trim());
+                        
+                        // FIX: Normalize Bangla numbers in correct answer column
                         let correctVal = cells[13] ? String(cells[13].v) : "1";
+                        correctVal = parseBanglaNumber(correctVal); 
+                        
                         let correctIndices = correctVal.includes(",") ? correctVal.split(',').map(s => parseInt(s.trim()) - 1).filter(n => !isNaN(n)) : (!isNaN(parseInt(correctVal)) ? [parseInt(correctVal) - 1] : []);
                         return { question: cells[0]?.v || "প্রশ্ন লোড হয়নি", options, correctIndices, correctIndex: correctIndices[0], note: "", type: correctIndices.length > 1 ? "multiple" : "single" };
                     });
+
+                    // Update Global for Homepage ONLY if it's Live
+                    if (sheetName === "Live") {
+                        ALL_QUIZZES = parsedQuestions;
+                        // FORCE UPDATE UI HERE
+                        render(); 
+                        handleQuizCountdown();
+                    }
+                    
+                    return parsedQuestions;
                 }
-                render(); 
-                handleQuizCountdown();
-            } catch (error) { console.error("Error fetching Sheet:", error); }
+                
+                // Only render if fetching "Live" for homepage update
+                if (sheetName === "Live") {
+                    ALL_QUIZZES = []; // Clear if empty
+                    render(); 
+                    handleQuizCountdown();
+                }
+                return null;
+            } catch (error) { 
+                console.error("Error fetching Sheet:", error); 
+                return null;
+            }
         }
-        fetchQuizData();
+        // Initial fetch for homepage
+        fetchQuizData("Live");
 
         const getSavedQuizState = () => {
             try {
@@ -405,6 +511,9 @@
             let html = '';
             if (state.showWaitModal) {
                 html += renderWaitModal();
+            }
+            if (state.alert && state.alert.show) {
+                html += renderAlert();
             }
             if (!['quiz', 'quiz_registration', 'quiz_password'].includes(state.view)) {
                 html += `<div class="sticky top-0 z-50 w-full flex flex-col">${renderHeader()}${state.view === 'home' ? renderNoticeBar() : ''}</div>`;
@@ -704,6 +813,21 @@
                              'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'));
             
             const resourcesHTML = l.content.resources.length > 0 ? `<ul class="space-y-3">` + l.content.resources.map(res => `<li><a href="${res.url}" class="flex items-center gap-3 text-sm p-4 rounded-xl transition-all duration-200 border border-transparent hover:shadow-md bg-white hover:border-emerald-100 text-emerald-800 shadow-sm dark:bg-slate-700/50 dark:hover:bg-slate-700 dark:text-emerald-400"><div class="p-2 rounded-full bg-emerald-100 dark:bg-emerald-900/50"><i data-lucide="external-link" class="w-4 h-4"></i></div><span class="font-medium">${res.label}</span></a></li>`).join('') + `</ul>` : `<p class="text-sm opacity-50 italic">কোনো নোট যুক্ত করা হয়নি</p>`;
+            
+            // Practice & Archive Section
+            let practiceSectionHTML = "";
+            if (l.quizInfo) {
+                practiceSectionHTML = `
+                <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-bold flex items-center gap-2 pb-4 opacity-90"><i data-lucide="pen-tool" class="w-5 h-5 text-emerald-500"></i> অনুশীলন ও আর্কাইভ</h3>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="actions.startPractice('${l.quizInfo.sheetName}')" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 text-sm"><i data-lucide="play-circle" class="w-4 h-4"></i> অনুশীলন শুরু করুন</button>
+                        <button onclick="actions.viewArchiveLeaderboard('${l.quizInfo.quizId}', '${l.quizInfo.title}')" class="flex-1 py-3 px-4 rounded-xl bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200 hover:shadow-md font-bold shadow-sm transition-all flex items-center justify-center gap-2 text-sm"><i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i> ${l.quizInfo.title} এর মেধাতালিকা</button>
+                        <button onclick="actions.viewArchiveAnswerKey('${l.quizInfo.sheetName}')" class="flex-1 py-3 px-4 rounded-xl bg-blue-50 border border-blue-100 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:hover:bg-blue-900/40 dark:text-blue-200 font-bold shadow-sm transition-all flex items-center justify-center gap-2 text-sm"><i data-lucide="book-open-check" class="w-4 h-4"></i> উত্তর দেখুন</button>
+                    </div>
+                </div>`;
+            }
+
             return `
             <main class="container mx-auto px-4 py-6 md:py-10 min-h-[calc(100vh-140px)] animate-fade-in">
                 <div class="max-w-4xl mx-auto space-y-6">
@@ -726,6 +850,7 @@
                         </div>
                         ${l.content.syllabus ? `<div class="p-6 rounded-2xl border-l-4 shadow-sm mb-10 bg-indigo-50 border-indigo-500 text-indigo-900 dark:bg-indigo-900/20 dark:text-indigo-100"><div class="flex items-start gap-4"><div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg shrink-0"><i data-lucide="book-marked" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i></div><div><h3 class="font-bold text-lg mb-2">${TEXTS.syllabus}</h3><p class="leading-relaxed opacity-90 font-medium">${l.content.syllabus}</p></div></div></div>` : ''}
                         <div class="space-y-4"><h3 class="text-lg font-bold flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-700 opacity-80"><i data-lucide="folder-open" class="w-5 h-5 text-emerald-500"></i> ${TEXTS.resources}</h3>${resourcesHTML}</div>
+                        ${practiceSectionHTML}
                     </div>
                 </div>
             </main>`;
@@ -769,7 +894,7 @@
                         <i data-lucide="hourglass" class="w-10 h-10"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-stone-800 dark:text-white">অপেক্ষা করুন</h3>
-                    <p class="text-stone-600 dark:text-slate-300 mb-6 text-sm leading-relaxed">কুইজ চলাকালীন সময়ে ফলাফল বা উত্তর দেখা যাবে না। দয়া করে কুইজের সময় শেষ হওয়া পর্যন্ত অপেক্ষা করুন।</p>
+                    <p class="text-stone-600 dark:text-slate-300 mb-6 text-sm leading-relaxed">কুইজ চলাকালীন সময়ে মেধাতালিকা বা উত্তর দেখা যাবে না। দয়া করে কুইজের সময় শেষ হওয়া পর্যন্ত অপেক্ষা করুন।</p>
                     
                     <div class="bg-stone-50 dark:bg-slate-700/30 border border-stone-100 dark:border-slate-700 rounded-xl p-4 mb-6">
                          <span class="text-base font-bold uppercase tracking-widest opacity-70 block mb-1">কুইজ শেষ হওয়ার সময়</span>
@@ -781,6 +906,18 @@
             </div>`;
         };
 
+        const renderAlert = () => `
+        <div class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl border border-stone-200 dark:border-slate-700 relative scale-100 transition-transform">
+                <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-stone-800 dark:text-white">সতর্কতা</h3>
+                <p class="text-stone-600 dark:text-slate-300 mb-6 text-sm leading-relaxed">${state.alert.message}</p>
+                <button onclick="actions.closeAlert()" class="w-full py-3 rounded-xl bg-stone-800 hover:bg-stone-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold shadow-lg transition-all active:scale-95">ঠিক আছে</button>
+            </div>
+        </div>`;
+
         const renderQuizRegistration = () => `
             <div class="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in bg-stone-50 text-stone-900 dark:bg-slate-900 dark:text-white">
                 <div class="max-w-md w-full rounded-2xl shadow-xl overflow-hidden border p-8 relative bg-white border-stone-200 dark:bg-slate-800 dark:border-slate-700">
@@ -788,7 +925,7 @@
                     <div class="text-center mb-8">
                         <p class="font-serif text-2xl text-emerald-600 dark:text-emerald-400 mb-4 font-bold">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
                         <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="user-plus" class="w-8 h-8"></i></div>
-                        <h2 class="text-2xl font-bold mb-2">${TEXTS.enterDetails}</h2><p class="text-sm opacity-60">কুইজ শুরু করার আগে দয়া করে আপনার পরিচয় দিন</p>
+                        <h2 class="text-2xl font-bold mb-2">${TEXTS.enterDetails}</h2><p class="text-sm opacity-60">${state.quiz.isPractice ? "অনুশীলনের জন্য আপনার নাম দিন (মেধাতালিকায় যুক্ত হবে না)" : "কুইজ শুরু করার আগে দয়া করে আপনার পরিচয় দিন"}</p>
                     </div>
                     <div class="space-y-5">
                         <div class="space-y-2"><label class="text-sm font-bold opacity-80 block">${TEXTS.nameLabel}</label><input type="text" id="reg-name" placeholder="${TEXTS.namePlaceholder}" class="w-full px-4 py-3 rounded-lg border bg-transparent focus:ring-2 focus:ring-emerald-500 outline-none transition border-gray-300 placeholder-gray-400 dark:border-slate-600 dark:placeholder-slate-500" onkeyup="if(event.key === 'Enter') actions.submitRegistration()"></div>
@@ -888,9 +1025,9 @@
                         <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full mb-8 overflow-hidden"><div class="h-full rounded-full transition-all duration-1000 ease-out ${pct >= 50 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-rose-400 to-rose-600'}" style="width: ${pct}%"></div></div>
                         <div class="p-4 rounded-xl mb-8 bg-slate-100 dark:bg-slate-700/50"><p class="text-lg font-medium leading-relaxed">"${msg}"</p></div>
                         <div class="flex flex-col gap-3 w-full">
-                            <button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>
+                             ${!state.quiz.isPractice ? `<button onclick="actions.viewLeaderboard()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="list-ordered" class="w-5 h-5"></i> ${TEXTS.viewLeaderboard}</button>` : ''}
                             <div class="flex flex-col gap-3 mt-2">
-                                <button onclick="actions.viewAnswerKey()" class="py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
+                                <button onclick="actions.reviewQuizAnswers()" class="py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"><i data-lucide="book-open-check" class="w-5 h-5"></i> উত্তর দেখুন</button>
                                 <button onclick="actions.goHome()" class="py-3.5 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold transition flex items-center justify-center gap-2"><i data-lucide="home" class="w-5 h-5"></i> ${TEXTS.goHome}</button>
                             </div>
                         </div>
@@ -905,13 +1042,13 @@
                     <div class="w-10 md:w-20 shrink-0"><button onclick="actions.exitQuiz()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center justify-center"><i data-lucide="arrow-left" class="w-6 h-6"></i></button></div>
                     <div class="flex-1 flex items-center justify-center gap-6 md:gap-16">
                         <div class="flex items-center gap-2 shrink-0"><span class="text-xs md:text-sm font-bold opacity-60 hidden sm:block">অগ্রগতি:</span><div class="flex items-center gap-1 bg-gray-100 dark:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-600"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-sm md:text-base font-bold text-emerald-600 dark:text-emerald-400">${toBanglaDigit(Object.keys(userAnswers).length)}<span class="opacity-40 text-xs mx-0.5">/</span>${toBanglaDigit(questions.length)}</span></div></div>
-                        <div class="flex items-center justify-center min-w-[120px] md:min-w-[150px] gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-100 dark:border-red-900/30"><i data-lucide="timer" class="w-4 h-4 text-red-500 animate-pulse"></i><span class="text-lg md:text-xl font-black text-red-600 dark:text-red-400 font-mono tracking-wider" id="quiz-timer">${formatTime(timeLeft)}</span></div>
+                        ${!state.quiz.isPractice ? `<div class="flex items-center justify-center min-w-[120px] md:min-w-[150px] gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-100 dark:border-red-900/30"><i data-lucide="timer" class="w-4 h-4 text-red-500 animate-pulse"></i><span class="text-lg md:text-xl font-black text-red-600 dark:text-red-400 font-mono tracking-wider" id="quiz-timer">${formatTime(timeLeft)}</span></div>` : ''}
                         <button onclick="actions.submitAllAnswers()" class="shrink-0 px-3 py-1.5 md:px-5 md:py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold shadow-lg disabled:opacity-50 disabled:grayscale transition-all transform active:scale-95 whitespace-nowrap flex items-center justify-center gap-2" ${Object.keys(userAnswers).length === 0 ? 'disabled' : ''}><span class="hidden sm:inline">জমা দিন</span> <span class="sm:hidden">জমা</span> <i data-lucide="send" class="w-3.5 h-3.5 md:w-4 md:h-4"></i></button>
                     </div>
                     <div class="w-10 md:w-20 shrink-0"></div> 
                 </div>
                 <div class="flex-1 p-4 md:p-8 max-w-3xl mx-auto w-full space-y-12 pb-20">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-3 flex items-center justify-center gap-2 text-sm text-emerald-800 dark:text-emerald-200 mb-6"><i data-lucide="user" class="w-4 h-4 opacity-50"></i><span>পরীক্ষার্থী: <span class="font-bold">${userName}</span></span></div>
+                    <div class="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-3 flex items-center justify-center gap-2 text-sm text-emerald-800 dark:text-emerald-200 mb-6"><i data-lucide="user" class="w-4 h-4 opacity-50"></i><span>পরীক্ষার্থী: <span class="font-bold">${userName}</span></span> ${state.quiz.isPractice ? '<span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">অনুশীলন</span>' : ''}</div>
                     ${questions.map((q, qIdx) => {
                         const isMultiple = q.correctIndices.length > 1;
                         const uAns = userAnswers[qIdx] || [];
@@ -935,11 +1072,19 @@
 
         const renderLeaderboard = () => {
             const data = state.leaderboardData;
+            // Filter logic if needed (e.g., if we are showing a specific quiz leaderboard)
+            const filteredData = state.leaderboardFilter 
+                ? data.filter(d => d.quizId === state.leaderboardFilter) 
+                : data.filter(d => d.quizId === "সীরাত" || !d.quizId); // Default to live/seerat if not filtered
+
+            // If we are filtering, we might want to show a title for it
+            const lbTitle = state.leaderboardFilter ? `মেধাতালিকা: ${state.leaderboardTitle || state.leaderboardFilter}` : TEXTS.leaderboardTitle;
+
             return `
             <div class="min-h-screen flex flex-col animate-fade-in bg-stone-50 text-stone-900 dark:bg-slate-900 dark:text-white">
                 <div class="p-4 md:px-8 border-b flex items-center justify-between sticky top-0 z-30 shadow-sm backdrop-blur-md border-stone-200 bg-white/95 dark:border-slate-700 dark:bg-slate-800/95">
                     <button onclick="actions.leaderboardBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2 bg-gray-100 dark:bg-slate-700 border border-stone-200 dark:border-slate-600 shadow-sm"><i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold hidden md:inline">ফিরে যান</span></button>
-                    <div class="font-bold text-lg flex items-center gap-2"><i data-lucide="trophy" class="w-5 h-5 text-yellow-500"></i> ${TEXTS.leaderboardTitle}</div><div class="w-10"></div> 
+                    <div class="font-bold text-lg flex items-center gap-2"><i data-lucide="trophy" class="w-5 h-5 text-yellow-500"></i> ${lbTitle}</div><div class="w-10"></div> 
                 </div>
                 <div class="container mx-auto p-4 md:p-8 max-w-4xl mt-4">
                     <div class="rounded-2xl overflow-hidden border shadow-lg border-stone-200 dark:border-slate-700">
@@ -947,7 +1092,7 @@
                             <table class="w-full text-left border-collapse">
                                 <thead><tr class="uppercase text-base font-bold tracking-wider bg-emerald-600 text-white dark:bg-slate-800 dark:text-emerald-400"><th class="p-4 w-20 text-center">মেধাস্থান</th><th class="p-4 text-center">${TEXTS.name}</th><th class="p-4 text-center">${TEXTS.score}</th><th class="p-4 text-center">${TEXTS.timeTaken}</th><th class="p-4 text-center">${TEXTS.submissionSerial}</th><th class="p-4 text-center hidden sm:table-cell">${TEXTS.time}</th></tr></thead>
                                 <tbody>
-                                    ${data.length > 0 ? data.map((user, idx) => {
+                                    ${filteredData.length > 0 ? filteredData.map((user, idx) => {
                                         let rankDisplay = `<span class="font-bold opacity-50 text-xl">${toBanglaDigit(idx + 1)}</span>`;
                                         if (idx === 0) rankDisplay = `<div class="flex flex-col items-center"><i data-lucide="crown" class="w-8 h-8 text-yellow-500 fill-yellow-500 animate-bounce"></i><span class="text-[10px] font-bold text-yellow-600 uppercase">১ম</span></div>`;
                                         else if (idx === 1) rankDisplay = `<div class="flex flex-col items-center"><i data-lucide="medal" class="w-7 h-7 text-slate-400 fill-slate-300"></i><span class="text-[10px] font-bold text-slate-500 uppercase">২য়</span></div>`;
@@ -980,10 +1125,65 @@
             setSearch: (val) => { state.search = val; if (state.view === 'home') render(); },
             selectLecture: (id) => { state.selectedLecture = COURSE_DATA.find(l => l.id === id); state.view = 'detail'; state.playbackRate = 1.0; window.scrollTo(0, 0); render(); },
             startQuiz: async () => {
-                if (ALL_QUIZZES.length === 0) { await fetchQuizData(); if (ALL_QUIZZES.length === 0) { alert("কুইজ লোড করা যায়নি। ইন্টারনেট সংযোগ চেক করুন।"); return; } }
+                // Ensure ALL_QUIZZES contains "Live" data
+                if (CURRENT_LOADED_SHEET !== "Live" || ALL_QUIZZES.length === 0) { 
+                    const data = await fetchQuizData("Live"); 
+                    if (!data || data.length === 0) { alert("কুইজ লোড করা যায়নি। ইন্টারনেট সংযোগ চেক করুন।"); return; } 
+                }
                 const saved = getSavedQuizState(); if (saved) { actions.resumeQuiz(); return; }
-                state.quiz = { active: true, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: QUIZ_TIME_LIMIT };
+                state.quiz = { active: true, currentQuestion: 0, score: 0, selectedOption: null, selectedOptions: [], isAnswerChecked: false, isFinished: false, isReviewing: false, questions: [...ALL_QUIZZES], userAnswers: {}, userName: "", userGuardian: "", startTime: null, endTime: null, expiryTime: null, timerInterval: null, timeLeft: QUIZ_TIME_LIMIT, isPractice: false };
                 state.view = (QUIZ_PASSWORD && QUIZ_PASSWORD !== "") ? 'quiz_password' : 'quiz_registration'; render(); window.scrollTo(0, 0);
+            },
+            // New Action for Practice Mode
+            startPractice: async (sheetName) => {
+                const questions = await fetchQuizData(sheetName);
+                if (!questions || questions.length === 0) { alert("অনুশীলন কুইজ লোড করা যায়নি। সম্ভবত এই কুইজটি এখনো তৈরি হয়নি।"); return; }
+                
+                state.quiz = { 
+                    active: true, 
+                    currentQuestion: 0, 
+                    score: 0, 
+                    selectedOption: null, 
+                    selectedOptions: [], 
+                    isAnswerChecked: false, 
+                    isFinished: false, 
+                    isReviewing: false, 
+                    questions: [...questions], 
+                    userAnswers: {}, 
+                    userName: "অনুশীলনকারী", 
+                    userGuardian: "-", 
+                    startTime: Date.now(), 
+                    endTime: null, 
+                    expiryTime: null, 
+                    timerInterval: null, 
+                    timeLeft: 0, // No timer for practice usually, or handled differently
+                    isPractice: true 
+                };
+                
+                // For practice, skip password check and go to registration (for name) or direct start
+                state.view = 'quiz_registration'; 
+                render(); 
+                window.scrollTo(0, 0);
+            },
+            viewArchiveLeaderboard: async (quizId, title) => {
+                 state.leaderboardFilter = quizId;
+                 state.leaderboardTitle = title;
+                 state.view = 'leaderboard';
+                 actions.fetchLeaderboardData();
+                 render();
+                 window.scrollTo(0, 0);
+            },
+            viewArchiveAnswerKey: async (sheetName) => {
+                const questions = await fetchQuizData(sheetName);
+                if (!questions || questions.length === 0) { alert("উত্তরপত্র লোড করা যায়নি।"); return; }
+                state.quiz = { 
+                    active: false, isFinished: false, isReviewing: true, fromHome: false, // Opened from archive
+                    questions: [...questions], userAnswers: {}, userName: "", userGuardian: "", score: 0,
+                    isPractice: true // Treat as practice mode context
+                };
+                state.view = 'quiz';
+                render();
+                window.scrollTo(0, 0);
             },
             verifyPassword: () => {
                 const input = document.getElementById('quiz-pass-input');
@@ -1001,20 +1201,34 @@
             },
             submitRegistration: () => {
                 const name = document.getElementById('reg-name').value.trim(), guardian = document.getElementById('reg-guardian').value.trim();
-                if (!name || !guardian) { alert("দয়া করে উভয় ঘর পূরণ করুন।"); return; }
-                state.quiz.userName = name; state.quiz.userGuardian = guardian; state.quiz.questions = [...ALL_QUIZZES]; state.quiz.startTime = Date.now(); 
                 
-                // --- NEW: Expiry Time Logic (Global vs Normal) ---
-                if (QUIZ_TIME_LIMIT > 0) {
-                     state.quiz.expiryTime = Date.now() + (QUIZ_TIME_LIMIT * 1000);
-                } else if (GLOBAL_END_TIME) {
-                     state.quiz.expiryTime = GLOBAL_END_TIME;
-                } else {
-                     // Fallback if neither exists (should not happen if setup correctly)
-                     state.quiz.expiryTime = Date.now() + (3600 * 1000); // Default 1 hour
+                if (!name || (!state.quiz.isPractice && !guardian)) { 
+                    alert(state.quiz.isPractice ? "দয়া করে আপনার নাম দিন।" : "দয়া করে উভয় ঘর পূরণ করুন।"); 
+                    return; 
+                }
+                
+                state.quiz.userName = name; 
+                state.quiz.userGuardian = guardian || "-"; 
+                // state.quiz.questions is already set in startQuiz or startPractice
+                
+                state.quiz.startTime = Date.now(); 
+                
+                // Expiry Logic: Only if NOT practice and there is a limit
+                if (!state.quiz.isPractice) {
+                    if (QUIZ_TIME_LIMIT > 0) {
+                        state.quiz.expiryTime = Date.now() + (QUIZ_TIME_LIMIT * 1000);
+                    } else if (GLOBAL_END_TIME) {
+                        state.quiz.expiryTime = GLOBAL_END_TIME;
+                    } else {
+                        state.quiz.expiryTime = Date.now() + (3600 * 1000);
+                    }
+                    localStorage.setItem('seerat_quiz_state', JSON.stringify(state.quiz)); 
+                    actions.startTimerLoop();
                 }
 
-                localStorage.setItem('seerat_quiz_state', JSON.stringify(state.quiz)); actions.startTimerLoop(); state.view = 'quiz'; render(); window.scrollTo(0, 0);
+                state.view = 'quiz'; 
+                render(); 
+                window.scrollTo(0, 0);
             },
             startTimerLoop: () => {
                 if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
@@ -1038,7 +1252,8 @@
                     state.quiz.userAnswers[qIdx] = [...current, optIdx];
                 }
                 if (state.quiz.userAnswers[qIdx].length === 0) delete state.quiz.userAnswers[qIdx];
-                localStorage.setItem('seerat_quiz_state', JSON.stringify(state.quiz)); render();
+                if (!state.quiz.isPractice) localStorage.setItem('seerat_quiz_state', JSON.stringify(state.quiz)); 
+                render();
             },
             submitAllAnswers: () => {
                 if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval);
@@ -1054,10 +1269,19 @@
                 localStorage.removeItem('seerat_quiz_state');
                 
                 // SAVE RESULT FOR REVIEW
-                localStorage.setItem('seerat_last_result', JSON.stringify(state.quiz));
+                if(!state.quiz.isPractice) localStorage.setItem('seerat_last_result', JSON.stringify(state.quiz));
 
-                if (currentUser) {
-                    addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), { name: state.quiz.userName, guardian: state.quiz.userGuardian, score, totalQuestions: state.quiz.questions.length, timestamp: Date.now(), timeTaken: Math.floor((state.quiz.endTime - state.quiz.startTime) / 1000) }).catch(e => console.error(e));
+                // ONLY SAVE TO FIREBASE IF NOT PRACTICE
+                if (currentUser && !state.quiz.isPractice) {
+                    addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), { 
+                        name: state.quiz.userName, 
+                        guardian: state.quiz.userGuardian, 
+                        score, 
+                        totalQuestions: state.quiz.questions.length, 
+                        timestamp: Date.now(), 
+                        timeTaken: Math.floor((state.quiz.endTime - state.quiz.startTime) / 1000),
+                        quizId: QUIZ_NAME_FROM_SHEET // Save the ID from the sheet so we can filter later
+                    }).catch(e => console.error(e));
                 }
                 window.scrollTo(0, 0); render();
             },
@@ -1065,6 +1289,11 @@
             exitReview: () => { 
                 if (state.quiz.fromHome) {
                     actions.goHome();
+                } else if (state.selectedLecture) {
+                    // Return to lecture detail if we were in archive mode
+                     state.view = 'detail';
+                     state.quiz.isReviewing = false;
+                     render();
                 } else if (state.quiz.isFinished) {
                     state.quiz.isReviewing = false; 
                     window.scrollTo(0, 0); 
@@ -1073,10 +1302,11 @@
                     actions.goHome(); 
                 }
             },
-            exitQuiz: () => { if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval); state.view = 'home'; render(); },
+            exitQuiz: () => { if (state.quiz.timerInterval) clearInterval(state.quiz.timerInterval); state.view = state.selectedLecture ? 'detail' : 'home'; render(); },
             // --- UPDATED ACTIONS: Check time restriction ---
             viewLeaderboard: () => { 
-                if (GLOBAL_END_TIME && Date.now() < GLOBAL_END_TIME) {
+                // Only restrict MAIN GLOBAL leaderboard. Archive leaderboards are always open.
+                if (!state.leaderboardFilter && GLOBAL_END_TIME && Date.now() < GLOBAL_END_TIME) {
                     state.showWaitModal = true;
                     render();
                 } else {
@@ -1087,6 +1317,7 @@
                 }
             },
             viewAnswerKey: async () => {
+                // Only restrict MAIN GLOBAL answer key.
                 if (GLOBAL_END_TIME && Date.now() < GLOBAL_END_TIME) {
                     state.showWaitModal = true;
                     render();
@@ -1102,7 +1333,7 @@
                     render();
                     window.scrollTo(0, 0);
                 } else {
-                    if (ALL_QUIZZES.length === 0) { await fetchQuizData(); }
+                    if (ALL_QUIZZES.length === 0) { await fetchQuizData("Live"); }
                     // Reset quiz state for viewing blank key
                     state.quiz = { 
                         active: false, 
@@ -1133,25 +1364,36 @@
                 state.showWaitModal = false;
                 render();
             },
-            leaderboardBack: () => { state.view = state.quiz.isFinished ? 'quiz' : 'home'; render(); },
+            leaderboardBack: () => { 
+                if (state.leaderboardFilter) {
+                     // Go back to lecture detail if filtered
+                     state.view = 'detail';
+                     state.leaderboardFilter = null;
+                     state.leaderboardTitle = null;
+                } else {
+                     state.view = state.quiz.isFinished ? 'quiz' : 'home'; 
+                }
+                render(); 
+            },
             fetchLeaderboardData: () => {
                 if (!currentUser) return;
                 if (unsubscribeLeaderboard) unsubscribeLeaderboard();
                 unsubscribeLeaderboard = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), (snapshot) => {
                     let data = []; snapshot.forEach(d => data.push(d.data()));
                     
-                    // Fix: Sort by time to assign serial, then by score for rank
+                    // Sorting logic:
+                    // 1. Sort by timestamp to get chronological order (for serial number)
                     data.sort((a, b) => a.timestamp - b.timestamp);
-                    data = data.map((item, index) => ({
-                        ...item,
-                        submissionSerial: index + 1
-                    }));
-
+                    
+                    // 2. Assign serials based on submission order within their specific quiz ID groups ideally, 
+                    // but practically global serial is fine or we recalc serial after filter.
+                    // Let's recalc serial after filter in renderLeaderboard for accuracy per quiz.
+                    
+                    // 3. For global ranking data:
                     data.sort((a, b) => {
                         if (b.score !== a.score) {
                             return b.score - a.score;
                         }
-                        // Secondary sort: Time Taken (Ascending - less is better)
                         return (a.timeTaken || 0) - (b.timeTaken || 0);
                     });
 
@@ -1167,6 +1409,14 @@
                     input.type = isPassword ? 'text' : 'password';
                     btn.innerHTML = isPassword ? SVGS.eyeOff : SVGS.eye;
                 }
+            },
+            showAlert: (msg) => {
+                state.alert = { show: true, message: msg };
+                render();
+            },
+            closeAlert: () => {
+                state.alert.show = false;
+                render();
             }
         };
 
