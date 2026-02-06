@@ -949,8 +949,8 @@
                 const isCorrect = JSON.stringify(u) === JSON.stringify(c);
                 if(isCorrect) score++;
 
-                const uText = u.map(idx => q.opts[idx]).join(", ");
-                const cText = c.map(idx => q.opts[idx]).join(", ");
+                const uText = u.map(idx => `(${getBengaliLabel(idx)}) ${q.opts[idx]}`).join(", ");
+                const cText = c.map(idx => `(${getBengaliLabel(idx)}) ${q.opts[idx]}`).join(", ");
 
                 reviewHtml += `
                 <div class="review-item">
