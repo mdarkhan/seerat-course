@@ -24,6 +24,10 @@
             --correct-border: #34D399;
             --wrong-bg: #FEE2E2;
             --wrong-border: #F87171;
+            
+            /* Blue for selection to differentiate from Correct Green */
+            --selected-bg: #EFF6FF;
+            --selected-border: #3B82F6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -215,8 +219,21 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .btn-finish-quiz:hover { background: #FEF2F2; border-color: #EF4444; }
+
+        /* Special style for "Submit" state on last question */
+        .btn-finish-quiz.last-step-green {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        .btn-finish-quiz.last-step-green:hover {
+            background: #007A3A;
+        }
 
         /* User Info Bar */
         .user-info-bar {
@@ -299,9 +316,10 @@
             background: #F9FAFB;
         }
 
+        /* CHANGED: Selection is now Blue to differentiate from Correct Green */
         .option-card.selected {
-            border-color: var(--primary-green);
-            background: #F0FDF4; 
+            border-color: var(--selected-border);
+            background: var(--selected-bg); 
         }
         
         .option-card.correct-answer {
@@ -346,19 +364,30 @@
             transition: 0.2s;
         }
         
+        /* Checkbox color matches card state */
         .option-card.selected .option-checkbox {
+            background: var(--selected-border);
+            border-color: var(--selected-border);
+        }
+        .option-card.correct-answer .option-checkbox {
             background: var(--primary-green);
             border-color: var(--primary-green);
+        }
+        .option-card.wrong-answer .option-checkbox {
+            background: #EF4444;
+            border-color: #EF4444;
         }
 
         .explanation-box {
             margin-top: 20px;
-            background: #FEF3C7;
-            border: 1px solid #FCD34D;
+            background: #F0FDF4; /* Light Green background from image */
+            border: 1px solid #DCFCE7;
             border-radius: 8px;
             padding: 15px;
             display: none;
             animation: fadeIn 0.3s;
+            font-size: 0.95rem;
+            color: #166534;
         }
 
         /* Footer Actions (Next/Submit Button) */
@@ -375,16 +404,61 @@
             text-align: center;
         }
         .score-circle {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             background: white;
-            border: 8px solid var(--primary-green);
+            border: 5px solid #22C55E; /* Bright Green */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             margin: 0 auto 20px auto;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+        }
+
+        .review-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #F3F4F6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            text-align: left;
+        }
+
+        .review-q-text {
+            color: #064E3B; /* Dark Green */
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .review-status {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        .status-correct { color: #16A34A; }
+        .status-wrong { color: #DC2626; }
+
+        .review-ans-label {
+            font-size: 0.95rem;
+            color: #4B5563;
+            margin-bottom: 10px;
+        }
+
+        .review-explanation {
+            background: #F0FDF4;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #15803D;
+            line-height: 1.5;
         }
 
         /* Loader */
@@ -510,9 +584,9 @@
                 <span id="timer-display" class="timer-display">০০:০০</span>
             </div>
             
-            <!-- Right: End Quiz -->
+            <!-- Right: End Quiz / Submit Last -->
             <div class="top-right">
-                <button onclick="confirmFinish()" class="btn-finish-quiz">শেষ করুন</button>
+                <button id="btn-top-finish" onclick="confirmFinish()" class="btn-finish-quiz">শেষ করুন</button>
             </div>
         </div>
 
@@ -535,8 +609,7 @@
             </div>
 
             <div class="explanation-box" id="explanation-area">
-                <h4 style="color:#92400E; margin-bottom:5px;">ব্যাখ্যা:</h4>
-                <p id="exp-text" style="color:#78350F; font-size:0.95rem;"></p>
+                <!-- Explanation Content -->
             </div>
 
             <!-- Navigation / Action Button -->
@@ -551,19 +624,19 @@
     <!-- RESULT SCREEN -->
     <main id="screen-result" class="hidden">
         <div id="screen-home" style="margin: 0 auto; padding: 30px;">
-            <h2 style="margin-bottom:20px; color:var(--primary-green);">ফলাফল</h2>
+            <h2 style="margin-bottom:20px; color:#166534; font-weight:700;">কুইজ ফলাফল</h2>
             <div class="score-circle">
-                <span id="score-val" style="font-size:2.5rem; font-weight:800; color:var(--primary-green); line-height:1;">0</span>
-                <span id="score-total" style="font-size:1rem; color:#6B7280;">/ 0</span>
+                <span id="score-val" style="font-size:3rem; font-weight:700; color:#166534; line-height:1;">০</span>
+                <span id="score-total" style="font-size:1.1rem; color:#6B7280; margin-top:5px;">/ ০</span>
             </div>
-            <p id="feedback-msg" style="font-size:1.2rem; font-weight:600; color:#374151; margin-bottom:30px;"></p>
+            <p id="feedback-msg" style="font-size:1.3rem; font-weight:700; color:#064E3B; margin-bottom:30px;"></p>
             
             <button onclick="location.reload()" class="btn-primary">
                 আবার চেষ্টা করুন <i data-lucide="refresh-cw"></i>
             </button>
         </div>
         
-        <div id="review-container" style="margin-top:30px; text-align:left;"></div>
+        <div id="review-container" style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;"></div>
     </main>
 
     <script>
@@ -737,7 +810,23 @@
             document.getElementById('q-text').innerText = q.q;
             document.getElementById('explanation-area').style.display = 'none';
             
-            // Reset Button State
+            // Update Top Right Button Logic (Standard/Last Question)
+            const topBtn = document.getElementById('btn-top-finish');
+            if(curIdx === questions.length - 1) {
+                topBtn.innerHTML = 'জমা দিন <i data-lucide="check-circle" width="16"></i>';
+                topBtn.classList.add('last-step-green');
+                topBtn.onclick = function() {
+                    // Logic: Save current selection if any, then finish
+                    if(currentSelection.length > 0) userAns[curIdx] = [...currentSelection];
+                    if(confirm("আপনি কি কুইজ জমা দিতে চান?")) finishQuiz();
+                };
+            } else {
+                topBtn.innerHTML = 'শেষ করুন';
+                topBtn.classList.remove('last-step-green');
+                topBtn.onclick = confirmFinish;
+            }
+
+            // Reset Bottom Button State
             const btn = document.getElementById('btn-action');
             btn.innerHTML = 'জমা দিন <i data-lucide="send" width="16"></i>';
             btn.classList.remove('hidden');
@@ -786,7 +875,7 @@
             
             // Scenario 1: Practice Mode - Submit to Check Answer
             if(mode === 'single') {
-                if(btn.innerText.includes('পরবর্তী')) { // "Next" state
+                if(btn.innerText.includes('পরবর্তী') || btn.innerText.includes('ফলাফল')) { // "Next" or "Result" state
                     nextQuestion();
                 } else {
                     if(currentSelection.length === 0) return;
@@ -801,7 +890,6 @@
             // Scenario 2: Exam Mode - Submit to Save and Next
             else {
                 if(currentSelection.length > 0) userAns[curIdx] = [...currentSelection];
-                // In exam, we just go next regardless of selection (allow skip? Logic says yes)
                 nextQuestion();
             }
         }
@@ -812,13 +900,22 @@
             q.opts.forEach((_, idx) => {
                 const card = document.getElementById(`opt-${idx}`);
                 card.classList.remove('selected'); 
-                if(q.correct.includes(idx)) card.classList.add('correct-answer');
-                else if(currentSelection.includes(idx)) card.classList.add('wrong-answer');
+                if(q.correct.includes(idx)) {
+                    card.classList.add('correct-answer');
+                    card.querySelector('.option-checkbox').innerHTML = '<i data-lucide="check" width="16"></i>';
+                }
+                else if(currentSelection.includes(idx)) {
+                    card.classList.add('wrong-answer');
+                    card.querySelector('.option-checkbox').innerHTML = '<i data-lucide="x" width="16"></i>';
+                }
             });
             
             // Only show explanation if setting is ON
             if(q.exp && showExp) {
-                document.getElementById('exp-text').innerText = q.exp;
+                document.getElementById('explanation-area').innerHTML = `
+                    <p style="font-weight:700; margin-bottom:5px;">ব্যাখ্যা:</p>
+                    ${q.exp}
+                `;
                 document.getElementById('explanation-area').style.display = 'block';
             }
         }
@@ -856,13 +953,17 @@
                 const cText = c.map(idx => q.opts[idx]).join(", ");
 
                 reviewHtml += `
-                <div style="background:white; padding:15px; border-radius:10px; margin-bottom:15px; border-left:4px solid ${isCorrect ? 'var(--primary-green)' : '#EF4444'}; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="font-weight:700; color:#1F2937; margin-bottom:8px;">${toBanglaNum(i+1)}. ${q.q}</div>
-                    <div style="font-size:0.9rem; color:${isCorrect ? 'green' : 'red'}; margin-bottom:5px;">
-                        ${isCorrect ? 'সঠিক উত্তর' : `আপনার উত্তর: ${uText || 'ফাঁকা'}`}
-                    </div>
-                    ${!isCorrect ? `<div style="font-size:0.9rem; color:green; font-weight:600;">সঠিক উত্তর: ${cText}</div>` : ''}
-                    ${q.exp ? `<div style="margin-top:8px; font-size:0.85rem; background:#FFFBEB; padding:8px; border-radius:6px;">${q.exp}</div>` : ''}
+                <div class="review-item">
+                    <div class="review-q-text">${toBanglaNum(i+1)}. ${q.q}</div>
+                    
+                    ${isCorrect 
+                        ? `<div class="review-status status-correct"><i data-lucide="check" width="18"></i> সঠিক</div>
+                           <div class="review-ans-label">সঠিক উত্তর: <strong>${cText}</strong></div>`
+                        : `<div class="review-status status-wrong"><i data-lucide="x" width="18"></i> ভুল (আপনার উত্তর: ${uText || 'ফাঁকা'})</div>
+                           <div class="review-ans-label">সঠিক উত্তর: <strong>${cText}</strong></div>`
+                    }
+                    
+                    ${q.exp ? `<div class="review-explanation">${q.exp}</div>` : ''}
                 </div>`;
             });
 
@@ -871,12 +972,13 @@
             
             const pct = (score / questions.length) * 100;
             let msg = "";
-            if(pct >= 80) msg = "মাশাআল্লাহ! চমৎকার হয়েছে";
+            if(pct >= 80) msg = "আলহামদুলিল্লাহ, চমৎকার হয়েছে";
             else if(pct >= 50) msg = "আলহামদুলিল্লাহ, ভালো প্রচেষ্টা";
             else msg = "আরও পড়াশোনা করা প্রয়োজন";
             document.getElementById('feedback-msg').innerText = msg;
             
             document.getElementById('review-container').innerHTML = reviewHtml;
+            lucide.createIcons();
         }
     </script>
 </body>
